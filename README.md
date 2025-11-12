@@ -1,13 +1,11 @@
 # sanity-plugin-sanity-next-redirects
 
-## How it works
-
-If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirect table. And if you are using NextJS, this means it’s hard-coded, so hands-off to them.
+If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. And if you are using NextJS, this means it’s hard-coded, so hands-off to them.
 
 This plugin…
 
 - creates a new `Redirects` document type in Sanity
-- which your SEO guy can safely use to create redirects
+- which your SEO guy can safely\* use to create redirects
 - and when your users change slugs on documents, they'll be given a popup asking if a redirect should be _automatically generated_
 - and some potentially cool helpers for your `sitemap.xml` and `rss.xml` feed too!
 
@@ -16,6 +14,8 @@ Throughout this file, we’ll be using the example of a schema that consists of:
 - a `page` schema, representing pages like `/home`, `/about`, and `/contact`. All of these pages are managed by `/src/app/[slug]/route.tsx` in NextJS.
 - a `post` schema, representing pages like `/post/some-blog-topic`. They’re in `/src/app/post/[slug]/route.tsx`.
 - an `event` schema, representing pages like `/event/2025/11/11/sanity-plugin-next-redirects-debut`. All of these pages are managed by `/src/app/event/[yyyy]/[mm]/[dd]/[slug]/route.tsx`.
+
+* I feel compelled to note that a site can very easily have its SEO royally donked up by careless redirects. Make sure you trust anyone who has access to this.
 
 ## Installation
 
@@ -155,7 +155,7 @@ const nextConfig = {
 }
 ```
 
-Now your SEO guy can “safely” manage these in Sanity. (Actually… it would be pretty easy to really donk up a website with badly written redirects, so make sure you actually trust them. Anyway.)
+Now your SEO guy can manage these in Sanity. It's as easy as creating a path like `/about-us`, then picking the `About` document from Sanity. If `About`’s slug ever changes, the redirect will keep up dynamically, because it points at the document, not the document slug.
 
 ### Updating pages
 
