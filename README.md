@@ -6,20 +6,14 @@ This plugin…
 
 - creates a new `Redirects` document type in Sanity
 - which your SEO guy can safely\* use to create redirects
-- and when your users change slugs on documents, they'll be given a popup asking if a redirect should be _automatically generated_
-- and some potentially cool helpers for your `sitemap.xml` and `rss.xml` feed too!
+- and when your users change slugs on documents, they’ll be given a popup asking if a redirect should be _automatically generated_
+- and producers some potentially cool helpers for your `sitemap.xml` and `rss.xml` feed too
 
-Throughout this file, we’ll be using the example of a schema that consists of:
-
-- a `page` schema, representing pages like `/home`, `/about`, and `/contact`. All of these pages are managed by `/src/app/[slug]/route.tsx` in NextJS.
-- a `post` schema, representing pages like `/post/some-blog-topic`. They’re in `/src/app/post/[slug]/route.tsx`.
-- an `event` schema, representing pages like `/event/2025/11/11/sanity-plugin-next-redirects-debut`. All of these pages are managed by `/src/app/event/[yyyy]/[mm]/[dd]/[slug]/route.tsx`.
-
-* I feel compelled to note that a site can very easily have its SEO royally donked up by careless redirects. Make sure you trust anyone who has access to this.
+`\*`` I feel compelled to note that a site can very easily have its SEO royally donked up by careless redirects. Make sure you trust anyone who has access to this.
 
 ## Installation
 
-### Add Redirects document type to your schema.
+### Add a new `redirect` document schema to Sanity.
 
 You will need to add a document type to track your individual redirects to your schema.
 
@@ -28,35 +22,41 @@ This plugin includes a ready-to-use redirect schema generator. Just feed it the 
 ```typescript
 // schema.ts
 import {type SchemaTypeDefinition} from 'sanity'
-import {createRedirectSchema} from 'sanity-plugin-sanity-next-redirects'
+import {createRedirectSchema} from 'sanity-plugin-next-redirects'
 import {pageSchema, postSchema, eventSchema} from 'path/to/schemas'
 
 export const schema: {types: SchemaTypeDefinition[]} = {
-  types: [pageSchema, postSchema, eventSchema, createRedirectSchema(['page', 'post', 'event'])],
+  types: [
+    pageSchema,
+    postSchema,
+    eventSchema,
+    createRedirectSchema([
+      // each of these is the `name` field in the document’s schema.
+      'page',
+      'post',
+      'event',
+    ]),
+  ],
 }
 ```
 
-If you need more control over the schema design, just copy `sampleRedirectSchema.ts` into your own schema folder, edit it accordingly, and insert that instead. Also see [Custom document titles]() below if your schema needs additional customization.
+If you need more control over the schema design, see [custom schema]() below.
+
+### Create path resolvers.
+
+For each document type, you’ll need a function that resolves the document type to where it renders in your NextJS app.
+
+For example, you might have…
+
+- “page” documents handled by `/app/[slug]`, for page like `/about` or `/contact`
+- "event" documents handled by `/app/event/[yyyy]/[mm]/[dd]/[slug]`, for listings like `/event/2025/11/28/black-friday-sale-on-labubus`
+- blog "post" documents handled by `/app/post/[slug]`, for posts like `/post/i-bought-my-daughter-a-labubu`
+
+Note: if you have already have functions that map document types to paths for your sitemap or other purposes, re-use ’em! If not, see `sitemap` section below.
 
 ```typescript
-import {type SchemaTypeDefinition} from 'sanity'
-import {pageSchema, postSchema, eventSchema, redirectSchema} from 'path/to/schemas'
-
-export const schema: {types: SchemaTypeDefinition[]} = {
-  types: [pageSchema, postSchema, eventSchema, redirectSchema],
-}
-```
-
-### Create resolvers.
-
-For each document type, you'll need a function that resolves the document type to where it renders in your NextJS app.
-
-For example, you might have a path of `/app/[slug]` for “page” documents like `/about`, and `/app/post/[slug]` for blog posts. Or for an extreme example, `/app/event/[yyyy]/[mm]/[dd]/[slug]` for events that include a date in the path.
-
-(Note: if you have already have functions that map document types to paths for your sitemap or other purposes, re-use ’em! If not, see `sitemap` section below.)
-
-```typescript
-// resolvers.ts
+// pathResolvers.ts
+import {PathResolvers} from 'sanity-plugin-next-redirects'
 
 export const resolvePost = (doc: Sanity.PostQueryResult | Sanity.Post) =>
   `/post/${doc.slug.current}`
@@ -69,61 +69,45 @@ export const resolveEvent = (doc: Sanity.EventQueryResult | Sanity.Event) => {
   var day = dateArray[2]
   return `/event/${year}/${month}/${day}/${doc.slug?.current}`
 }
+
+const pathResolvers: PathResolvers = {
+  // each key must be the exact name of a document type in your schema
+  page: resolvePage,
+  post: resolvePost,
+  event: resolveEvent,
+}
+
+export default pathResolvers
 ```
 
-### Add the plugin and resolvers to Sanity config
+### Add the plugin and pathResolvers to Sanity config.
 
 ```typescript
 // sanity.config.ts
-import {sanityNextRedirects} from 'sanity-plugin-sanity-next-redirects'
-import {resolvePage, resolvePost, resolveEvent} from 'path/to/resolvers.ts'
+import {sanityNextRedirects} from 'sanity-plugin-next-redirects'
+import pathResolvers from 'path/to/pathResolvers'
 
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers: {
-        // each key must be the exact name of a document type in your schema
-        page: resolvePage,
-        post: resolvePost,
-        event: resolveEvent,
-      },
+      pathResolvers,
     }),
   ],
 })
 ```
 
-### And finally, add dynamic redirects to NextJS config
+### And finally, add dynamic redirects to NextJS config.
 
 ```typescript
 // next.config.ts
-import {resolvePage, resolvePost, resolveEvent} from 'path/to/resolvers'
-import {client} from 'path/to/sanity/client'
+import {client} from './src/sanity/lib/client'
+import {generateRedirects} from 'sanity-plugin-next-redirects'
+import pathResolvers from './src/sanity/lib/pathResolvers'
 
-const nextConfig = {
+export default {
   // …
   async redirects() {
-    const data = await client.fetch(redirectQuery)
-
-    const dynamicRedirects = data.map((doc) => {
-      let destination: string = ''
-      switch (doc.destination._type) {
-        case 'page':
-          destination = resolvePage(doc)
-          break
-        case 'post':
-          destination = resolvePost(doc)
-          break
-        case 'event':
-          destination = resolveEvent(doc)
-          break
-      }
-      return {
-        source: doc.url,
-        destination,
-        permanent: doc.redirectType === 'PERMANENT',
-      }
-    })
-
+    const dynamicRedirects = await generateRedirects(client, pathResolvers)
     return [
       // hard-coded redirects here…
       ...dynamicRedirects,
@@ -155,11 +139,17 @@ const nextConfig = {
 }
 ```
 
-Now your SEO guy can manage these in Sanity. It's as easy as creating a path like `/about-us`, then picking the `About` document from Sanity. If `About`’s slug ever changes, the redirect will keep up dynamically, because it points at the document, not the document slug.
+Now your SEO guy can manage these in Sanity. It's as easy…
 
-### Updating pages
+1. create a new redirect
+2. give it the URL `/about-us`
+3. pick the `About` document from Sanity
 
-The real power of this comes with edits to exist pages. Let’s say one of your writers published an article at `/post/labubus-ate-my-daughter`, and later the path gets changed to `/post/rescuing-my-daughter-from-the-cult-of-labubu`. (That’s a real example, by the way; [_The New York Times_ does this every day.](https://x.com/nyt_diff/status/1982455495848833122))
+If `About`’s slug ever changes, the redirect will keep up dynamically — because it points to the document, not the document slug.
+
+### Automatically add redirects for changed slugs
+
+The real power of this comes with edits to existing pages. Let’s say one of your writers published an article at `/post/labubus-ate-my-daughter`, and later the path gets changed to `/post/rescuing-my-daughter-from-the-cult-of-labubu`. (That’s a real example, by the way; [_The New York Times_ does this every day.](https://x.com/nyt_diff/status/1982455495848833122))
 
 When the editor publishes the change, a dialog box will pop up asking if they’d like to automatically create a redirect from the old URL to the new one. It includes a note on how old the document is — if it’s less than X hours old and you have a low-traffic site, you might want to skip the redirect, since it probably isn’t indexed by Google yet and it’s nice to keep the redirect table clean.
 
@@ -167,36 +157,38 @@ But if you’re running a high-traffic site, that’s already gathering links on
 
 And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `rescuing-my-daughter-from-labubus` to `i-fed-my-daughter-to-labubus` to `i-replaced-my-family-with-labubus`, each redirect will point to the article’s _latest, current slug_, not hop down the history from one change to the next.
 
-## Bonus — lets DRY your sitemap!
+## Bonus — lets DRY out that sitemap
 
-If you were smart about your `sitemap.ts` file, you might _already have_ resolver functions. If not, let’s recycle the ones you just built:
+If you were smart about your `sitemap.ts` file, you might have re-used resolver functions you already wrote. If not, let’s recycle the ones you just built.
+
+Also: you could add `defineField({ name: 'priority', type: 'number' }) to your document schemas, if you'd like to manage that in Sanity as well.
 
 ```typescript
 // src/app/sitemap.ts
-import {resolvePage, resolvePost, resolveEvent} from 'path/to/resolvers.ts'
 import {pageIndexQuery, postIndexQuery, eventIndexQuery} from 'path/to/sanity/queries'
+import {pathResolvers} from 'path/to/pathResolvers.ts'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pagesData = await client.fetch(pageIndexQuery)
   const pages = pagesData.map((doc) => ({
-    url: resolvePage(doc),
-    lastModified: page._updatedAt,
-    priority: 1.0,
+    url: pathResolvers['page'](doc),
+    lastModified: doc._updatedAt,
+    priority: doc.priority,
   }))
 
   const postsData = await client.fetch(postIndexQuery)
   const posts = postsData.map((doc) => ({
-    url: resolvePost(doc),
-    lastModified: page._updatedAt,
-    priority: 0.7,
+    url: pathResolvers['post'](doc),
+    lastModified: doc._updatedAt,
+    priority: doc.priority,
   }))
 
   const eventsData = await client.fetch<Sanity.EventIndexQueryResult>(eventIndexQuery)
   const events = eventsData.posts.map((doc) => {
     return {
-      url: resolveEvent(doc),
-      lastModified: post._updatedAt,
-      priority: 0.3,
+      url: pathResolvers['event'](doc),
+      lastModified: doc._updatedAt,
+      priority: doc.priority,
     }
   })
 
@@ -205,10 +197,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 ```
 
 These could be used for an RSS feed too!
-
-## Usage
-
-// studio walkthrough
 
 ## Options and Customization
 
@@ -231,11 +219,9 @@ export const schema: {types: SchemaTypeDefinition[]} = {
 }
 ```
 
-If you’re using `page.name`, `post.title`, and `event.eventName` to title your documents… we need to have a talk about polymorphism. But in the meantime, copy `sampleRedirectSchema.ts` instead of using the `createRedirectSchema()` as per above, and then…
+If you’re using `page.name`, `post.title`, and `event.eventName` to title your documents… we need to have a talk about polymorphism. But in the meantime, instead of using `createRedirectSchema()` as per above, copy `sampleRedirectSchema.ts` to your schemas folder and…
 
 ```typescript
-// … at the end of redirectSchema.ts
-
 export const mySillyRedirectSchema = defineType({
   // …
   preview: {
@@ -267,7 +253,7 @@ export const schema: {types: SchemaTypeDefinition[]} = {
 
 ### Sanity API version
 
-You can feed a custom Sanity API version to the Sanity Client in the Studio tool.
+The popup uses the Sanity Client to create the automatic redirects. If you want to use a specific Sanity API version, feed it here.
 
 ```typescript
 // sanity.config.ts
@@ -275,9 +261,7 @@ You can feed a custom Sanity API version to the Sanity Client in the Studio tool
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers: {
-        /* … */
-      },
+      resolvers,
       apiVersion: '2025-11-11',
     }),
   ],
@@ -294,9 +278,7 @@ You can pop up a "toast" message when a redirect is made. I like to remind users
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers: {
-        /* … */
-      },
+      resolvers,
       toastMessage: {
         title: 'Your redirect won’t go live until the site is deployed.',
         duration: 10000,
@@ -310,11 +292,11 @@ export default defineConfig({
 
 You can replace the popup dialog box with your own React component with custom verbiage and options.
 
-For example, you might want to change or remove my "This document is under a day old…" warning, or add a `TEMPORARY/PERMANENT` switch. Make a copy of `DefaultDialogBox.tsx` called `CustomRedirectDialogBox.tsx`…
+For example, you might want to change or remove the built-in "This document is under a day old…" text, or add a `TEMPORARY/PERMANENT` switch. Make a copy of `DefaultDialogBox.tsx` called `CustomRedirectDialogBox.tsx`…
 
 ```typescript
 // CustomRedirectDialog.tsx
-import {SELECT} from '@sanity/ui'
+import {Radio} from '@sanity/ui'
 import {type RedirecTypeEnum} from 'sanity-plugin-next-redirects'
 
 export const CustomRedirectDialog = ({
@@ -323,26 +305,30 @@ export const CustomRedirectDialog = ({
   destinationPath,
   redirectType, // uncomment
   setRedirectType, // uncomment
-  // ...
-}: DialogBoxProps): React.ReactElement => {
+}: // ...
+DialogBoxProps): React.ReactElement => {
   return (
     <Card padding={4}>
-        {/* … replace this line: */}
-          {/* redirect type toggle? */}
-        {/* with this… */}
-        <Label size={1} >Redirect type</Label>
-        <Flex>
-          <Radio
-            checked={redirectType === 'PERMANENT'}
-            value="PERMANENT"
-            onChange={(e) => setRedirectType(e.target.value)}
-          >Permanent</Radio>
-          <Radio
-            checked={redirectType === 'TEMPORARY'}
-            value="TEMPORARY"
-            onChange={(e) => setRedirectType(e.target.value)}
-          >Permanent</Radio>
-        </Flex>
+      {/* … replace this line: */}
+      {/* redirect type toggle? */}
+      {/* with this… */}
+      <Label size={1}>Redirect type</Label>
+      <Flex>
+        <Radio
+          checked={redirectType === 'PERMANENT'}
+          value="PERMANENT"
+          onChange={(e) => setRedirectType(e.target.value)}
+        >
+          Permanent
+        </Radio>
+        <Radio
+          checked={redirectType === 'TEMPORARY'}
+          value="TEMPORARY"
+          onChange={(e) => setRedirectType(e.target.value)}
+        >
+          Permanent
+        </Radio>
+      </Flex>
       {/* … */}
     </Card>
   )
@@ -354,7 +340,7 @@ import {CustomRedirectDialog} from 'path/to/component'
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers: { /* … */ },
+      pathResolvers,
       DialogBox: CustomRedirectDialog,
     }),
   ],
@@ -369,13 +355,26 @@ If you need to call your Sanity “redirect” schema document name something el
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers: {
-        /* … */
-      },
+      pathResolvers,
       sanityRedirectDocumentName: 'redirects',
     }),
   ],
 })
+```
+
+### Custom Redirect schema
+
+If you need more control over the schema design, just copy `sampleRedirectSchema.ts` into your own schema folder, edit it accordingly, and insert that instead.
+
+You can add whatever additional fields, customize descriptions, and present instructions however you like, but the `url`, `destination`, and `redirectType` fields are required by this plugin’s tooling.
+
+```typescript
+import {type SchemaTypeDefinition} from 'sanity'
+import {pageSchema, postSchema, eventSchema, redirectSchema} from 'path/to/schemas'
+
+export const schema: {types: SchemaTypeDefinition[]} = {
+  types: [pageSchema, postSchema, eventSchema, redirectSchema],
+}
 ```
 
 ##

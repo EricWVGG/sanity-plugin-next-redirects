@@ -1,5 +1,3 @@
-'use client'
-
 import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading} from '@sanity/ui'
 import type {DialogBoxProps} from './types'
 import pluralize from 'pluralize-esm'

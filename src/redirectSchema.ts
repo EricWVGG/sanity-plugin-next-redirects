@@ -18,8 +18,8 @@ export const createRedirectSchema = (types: Array<string>, destinationTitleKey: 
             .custom(
               regex(
                 /^\/[^?#]*(\?[^#]*)?(#.*)?$/,
-                'Please enter a valid URL path, not including the domain.',
-              ),
+                'Please enter a valid URL path, not including the domain.'
+              )
             ),
       }),
       defineField({

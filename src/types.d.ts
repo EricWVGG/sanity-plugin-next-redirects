@@ -13,7 +13,7 @@ type DialogBoxProps = {
 }
 
 export interface SanityNextRedirectsOptions {
-  resolvers: Record<string, (doc: any) => string | null>
+  pathResolvers: PathResolvers
   apiVersion?: string
   toastMessage?: {
     title: string
@@ -22,3 +22,7 @@ export interface SanityNextRedirectsOptions {
   DialogBox?: (props: DialogBoxProps) => React.ReactElement
   sanityRedirectDocumentName?: string
 }
+
+export type PathResolver = (doc: any) => string
+
+export type PathResolvers = Record<string, PathResolver>

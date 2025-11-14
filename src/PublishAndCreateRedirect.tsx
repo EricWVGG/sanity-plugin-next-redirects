@@ -1,5 +1,3 @@
-'use client'
-
 import {useState, useEffect, useCallback} from 'react'
 import {
   useDocumentOperation,
@@ -11,7 +9,7 @@ import {
 } from 'sanity'
 import {useToast} from '@sanity/ui'
 import type {SanityNextRedirectsOptions, RedirecTypeEnum} from './types'
-import {DefaultDialogBox} from './'
+import {DefaultDialogBox} from './DefaultDialogBox'
 
 const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
   sanityRedirectDocumentName: 'redirect',
@@ -25,7 +23,7 @@ export const PublishAndCreateRedirect =
   (
     context: DocumentActionsContext,
     BasicPublishComponent: DocumentActionComponent,
-    config: SanityNextRedirectsOptions,
+    config: SanityNextRedirectsOptions
   ) =>
   (props: DocumentActionProps): DocumentActionComponent | DocumentActionDescription => {
     const {id, type} = props
@@ -34,7 +32,7 @@ export const PublishAndCreateRedirect =
     const toast = useToast()
     const [isDialogOpen, setDialogOpen] = useState(false)
 
-    const {toastMessage, resolvers, apiVersion, sanityRedirectDocumentName, DialogBox} = {
+    const {toastMessage, pathResolvers, apiVersion, sanityRedirectDocumentName, DialogBox} = {
       ...DEFAULTS,
       ...config,
     }
@@ -67,13 +65,13 @@ export const PublishAndCreateRedirect =
           publishNow()
           return
         }
-        if (!Object.keys(resolvers).includes(draft._type)) {
+        if (!Object.keys(pathResolvers).includes(draft._type)) {
           // console.log('not a protected document type; proceed)
           publishNow()
           return
         }
 
-        const resolvePath = resolvers[draft._type]
+        const resolvePath = pathResolvers[draft._type]
         const oldPath = resolvePath(published)
         const newPath = resolvePath(draft)
 
@@ -87,7 +85,7 @@ export const PublishAndCreateRedirect =
           setDialogOpen(true)
         }
       },
-      [],
+      []
     )
 
     const createRedirectAndPublish = useCallback(() => {
@@ -136,7 +134,7 @@ export const PublishAndCreateRedirect =
       timeSinceCreated = new Date().getTime() - dateOfDocument.getTime()
     }
 
-    if (Object.keys(resolvers).includes(type)) {
+    if (Object.keys(pathResolvers).includes(type)) {
       return BasicPublishComponent
     }
 
