@@ -254,10 +254,8 @@ export default defineConfig({
   plugins: [
     sanityNextRedirects({
       pathResolvers,
-      toastMessage: {
-        title: 'Your redirect won’t go live until the site is deployed.',
-        duration: 10000,
-      },
+      toastMessage: 'Your redirect won’t go live until the site is deployed.',
+      toastDuration: 50000,
     }),
   ],
 })

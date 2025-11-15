@@ -10,28 +10,27 @@ import {
 import {useToast} from '@sanity/ui'
 import type {SanityNextRedirectsOptions, RedirecTypeEnum} from './types'
 import {PublishIcon} from '@sanity/icons'
-import {DEFAULTS, DEFAULT_TOAST_DURATION} from './'
+import {DefaultDialogBox} from './DefaultDialogBox'
 
 export const PublishAndCreateRedirect =
   (context: DocumentActionsContext, config: SanityNextRedirectsOptions) =>
   (props: DocumentActionProps): DocumentActionComponent | DocumentActionDescription => {
+    const {
+      toastMessage,
+      toastDuration,
+      pathResolvers,
+      apiVersion,
+      hideRedirectType,
+      redirectSchemaName,
+    } = config
+
+    const DialogBox = config.dialogBoxComponent ?? DefaultDialogBox
+
     const {id, type} = props
     const {publish} = useDocumentOperation(id, type)
     const [isPublishing, setIsPublishing] = useState(false)
     const toast = useToast()
     const [isDialogOpen, setDialogOpen] = useState(false)
-
-    const {
-      toastMessage,
-      pathResolvers,
-      apiVersion,
-      hideRedirectType,
-      dialogBoxComponent: DialogBox,
-      redirectSchemaName,
-    } = {
-      ...DEFAULTS,
-      ...config,
-    }
 
     const [redirectPath, setRedirectPath] = useState<string | null>(null)
     // this is the path that will go in the new Redirect entry
@@ -98,8 +97,8 @@ export const PublishAndCreateRedirect =
       })
       if (!!toastMessage) {
         toast.push({
-          duration: DEFAULT_TOAST_DURATION,
-          ...toastMessage,
+          title: toastMessage,
+          duration: toastDuration,
         })
       }
       publishNow()

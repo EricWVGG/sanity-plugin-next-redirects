@@ -3,10 +3,8 @@ import type {SchemaTypeDefinition} from 'sanity'
 export interface SanityNextRedirectsOptions {
   pathResolvers: PathResolvers
   apiVersion?: string
-  toastMessage?: {
-    title: string
-    duration?: number
-  }
+  toastMessage: string
+  toastDuration?: number
   dialogBoxComponent?: (props: DialogBoxProps) => React.ReactElement
   documentTitleKey?: string
   hideRedirectType?: boolean

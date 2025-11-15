@@ -2,21 +2,13 @@ import {definePlugin} from 'sanity'
 import {PublishAndCreateRedirect} from './PublishAndCreateRedirect'
 import {withRedirectSchema} from './redirectSchema'
 import type {SanityNextRedirectsOptions} from './types'
-import {DefaultDialogBox} from './DefaultDialogBox'
-
-export const DEFAULT_TOAST_DURATION = 10000
-
-export const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
-  redirectSchemaName: 'redirect',
-  dialogBoxComponent: DefaultDialogBox,
-  hideRedirectType: false,
-}
 
 export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions>((config) => {
-  const componentConfig = ({
+  const componentConfigWithDefaults = ({
     pathResolvers,
     apiVersion,
     toastMessage,
+    toastDuration,
     dialogBoxComponent,
     documentTitleKey,
     hideRedirectType,
@@ -25,12 +17,11 @@ export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions
     pathResolvers,
     apiVersion,
     toastMessage,
+    toastDuration: toastDuration ?? 10000,
     dialogBoxComponent,
     documentTitleKey,
-    hideRedirectType,
-    redirectSchemaName: !!customRedirectSchema
-      ? customRedirectSchema.name
-      : DEFAULTS.redirectSchemaName,
+    hideRedirectType: hideRedirectType ?? false,
+    redirectSchemaName: customRedirectSchema?.name ?? 'redirect',
   })
 
   return {
@@ -43,7 +34,7 @@ export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions
         inputs.map((input) =>
           input.action === 'publish' &&
           Object.keys(config.pathResolvers).includes(context.schemaType)
-            ? PublishAndCreateRedirect(context, componentConfig(config))
+            ? PublishAndCreateRedirect(context, componentConfigWithDefaults(config))
             : input
         ),
     },
