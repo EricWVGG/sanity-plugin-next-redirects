@@ -35,8 +35,6 @@
   "dependencies": {
     "@sanity/incompatible-plugin": "^1.0.5",
     "@sanity/ui": "^3.1.11",
-    "next": "^16.0.3",
-    "next-sanity": "^11.6.6",
     "pluralize-esm": "^9.0.5",
     "sanity-advanced-validators": "^0.6.0"
   },
@@ -52,8 +50,10 @@
     "yalc": "1.0.0-pre.53"
   },
   "peerDependencies": {
-    "react": "^19",
-    "sanity": "^4"
+    "next-sanity": "^11.6.6",
+    "pluralize-esm": "^9.0.5",
+    "react": "^19.2.0",
+    "sanity": "^4.14.2"
   },
   "engines": {
     "node": ">=18"

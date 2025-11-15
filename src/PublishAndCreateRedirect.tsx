@@ -12,7 +12,7 @@ import type {SanityNextRedirectsOptions, RedirecTypeEnum} from './types'
 import {DefaultDialogBox} from './DefaultDialogBox'
 
 const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
-  sanityRedirectDocumentName: 'redirect',
+  redirectDocumentName: 'redirect',
   apiVersion: '2025-07-16',
   DialogBox: DefaultDialogBox,
 }
@@ -20,11 +20,7 @@ const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
 const DEFAULT_TOAST_DURATION = 10000
 
 export const PublishAndCreateRedirect =
-  (
-    context: DocumentActionsContext,
-    BasicPublishComponent: DocumentActionComponent,
-    config: SanityNextRedirectsOptions
-  ) =>
+  (context: DocumentActionsContext, config: SanityNextRedirectsOptions) =>
   (props: DocumentActionProps): DocumentActionComponent | DocumentActionDescription => {
     const {id, type} = props
     const {publish} = useDocumentOperation(id, type)
@@ -32,7 +28,7 @@ export const PublishAndCreateRedirect =
     const toast = useToast()
     const [isDialogOpen, setDialogOpen] = useState(false)
 
-    const {toastMessage, pathResolvers, apiVersion, sanityRedirectDocumentName, DialogBox} = {
+    const {toastMessage, pathResolvers, apiVersion, redirectDocumentName, DialogBox} = {
       ...DEFAULTS,
       ...config,
     }
@@ -56,51 +52,46 @@ export const PublishAndCreateRedirect =
     const checkForSlugChange = useCallback(
       (draft?: SanityDocument | null, published?: SanityDocument | null) => {
         if (!draft) {
-          console.error('This should be unreachable.')
+          // alert('This should be unreachable.')
           publishNow()
           return
         }
         if (!published) {
-          // console.log('first time publishing this doc; proceed')
+          // alert('first time publishing this doc; proceed')
           publishNow()
           return
         }
-        if (!Object.keys(pathResolvers).includes(draft._type)) {
-          // console.log('not a protected document type; proceed)
-          publishNow()
-          return
-        }
-
         const resolvePath = pathResolvers[draft._type]
         const oldPath = resolvePath(published)
         const newPath = resolvePath(draft)
-
-        if (oldPath == newPath) {
-          // path hasn't changed; proceed
+        if (oldPath === newPath) {
           publishNow()
         } else {
           setRedirectPath(oldPath)
           setDestinationPath(newPath)
-          setDestination(published)
+          setDestination(draft)
           setDialogOpen(true)
         }
       },
       []
     )
 
-    const createRedirectAndPublish = useCallback(() => {
+    const createRedirectAndPublish = useCallback(async () => {
       if (!destination || !redirectPath) {
-        console.log('ERROR (should be unreachable')
+        alert('ERROR (should be unreachable')
         return
       }
       const client = context.getClient({
         apiVersion: apiVersion ?? '2025-07-16',
       })
-      client.create({
-        _type: sanityRedirectDocumentName!,
+      if (!client) {
+        throw new Error('client not found')
+      }
+      await client.create({
+        _type: redirectDocumentName!,
         destination: {
           _ref: id,
-          _type: type,
+          _type: destination._type,
         },
         redirectType,
         url: redirectPath,
@@ -112,7 +103,7 @@ export const PublishAndCreateRedirect =
         })
       }
       publishNow()
-    }, [])
+    }, [destination, redirectPath, redirectType, redirectDocumentName])
 
     const publishNow = useCallback(() => {
       setDialogOpen(false)
@@ -134,12 +125,8 @@ export const PublishAndCreateRedirect =
       timeSinceCreated = new Date().getTime() - dateOfDocument.getTime()
     }
 
-    if (Object.keys(pathResolvers).includes(type)) {
-      return BasicPublishComponent
-    }
-
     return {
-      label: !isPublishing ? 'Publishing…' : 'Publish',
+      label: isPublishing ? 'Publishing…' : 'Publish…',
       disabled: !props.draft,
       onHandle: () => checkForSlugChange(props.draft, props.published),
       dialog: isDialogOpen &&

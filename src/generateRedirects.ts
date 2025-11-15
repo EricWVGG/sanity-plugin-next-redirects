@@ -1,8 +1,6 @@
 import {SanityClient} from 'next-sanity'
 import type {PathResolvers} from './types'
 import {redirectQuery as defaultRedirectQuery} from './redirectQuery'
-// import {Redirect} from 'next'
-// ^ This doesn't work because next is actually taking {source} and turning it into {basepath} or something weird.
 
 type Redirect = {source: string; destination: string; permanent: boolean}
 

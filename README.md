@@ -1,15 +1,15 @@
-# sanity-plugin-sanity-next-redirects
+# sanity-plugin-next-redirects
 
-If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. And if you are using NextJS, this means it’s hard-coded, so hands-off to them.
+If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. And if you are using NextJS, this means it’s in your codebase, so it’s hands-off to them.
 
 This plugin…
 
 - creates a new `Redirects` document type in Sanity
-- which your SEO guy can safely\* use to create redirects
+- which your SEO guy can “safely” use to create redirects
 - and when your users change slugs on documents, they’ll be given a popup asking if a redirect should be _automatically generated_
 - and producers some potentially cool helpers for your `sitemap.xml` and `rss.xml` feed too
 
-`\*`` I feel compelled to note that a site can very easily have its SEO royally donked up by careless redirects. Make sure you trust anyone who has access to this.
+* A site can, of course, get its SEO donked up by careless redirects. Make sure you trust anyone who has access to this.
 
 ## Installation
 
@@ -356,7 +356,7 @@ export default defineConfig({
   plugins: [
     sanityNextRedirects({
       pathResolvers,
-      sanityRedirectDocumentName: 'redirects',
+      redirectDocumentName: 'redirects',
     }),
   ],
 })
