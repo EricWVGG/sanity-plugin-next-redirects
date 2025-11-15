@@ -14,7 +14,6 @@ import {PublishIcon} from '@sanity/icons'
 
 const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
   redirectDocumentName: 'redirect',
-  apiVersion: '2025-07-16',
   dialogBoxComponent: DefaultDialogBox,
   hideRedirectType: false,
 }
@@ -91,7 +90,7 @@ export const PublishAndCreateRedirect =
         return
       }
       const client = context.getClient({
-        apiVersion: apiVersion ?? '2025-07-16',
+        apiVersion: apiVersion!,
       })
       if (!client) {
         throw new Error('client not found')
