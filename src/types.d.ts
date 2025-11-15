@@ -7,7 +7,6 @@ export interface SanityNextRedirectsOptions {
   }
   DialogBox?: (props: DialogBoxProps) => React.ReactElement
   redirectDocumentName?: string
-  redirectableDocumentNames: Array<string>
   documentTitleKey?: string
 }
 

@@ -33,6 +33,7 @@
     "watch": "pkg-utils watch --strict"
   },
   "dependencies": {
+    "@sanity/icons": "^3.7.4",
     "@sanity/incompatible-plugin": "^1.0.5",
     "@sanity/ui": "^3.1.11",
     "pluralize-esm": "^9.0.5",

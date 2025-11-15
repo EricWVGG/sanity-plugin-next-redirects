@@ -4,14 +4,12 @@ import {regex} from 'sanity-advanced-validators'
 import type {SanityNextRedirectsOptions} from './types'
 
 export const withRedirectSchema =
-  ({redirectableDocumentNames, documentTitleKey}: SanityNextRedirectsOptions) =>
+  ({documentTitleKey, pathResolvers}: SanityNextRedirectsOptions) =>
   (
     schema: Array<SchemaTypeDefinition>,
     _: Omit<ConfigContext, 'schema' | 'i18n' | 'currentUser' | 'getClient' | 'client'>
   ) => {
-    const docTypes = redirectableDocumentNames
-    // I would love to make redirectableDocumentNames optional and generate docTypes from schema, but I'm getting an empty array :\
-    // config.redirectableDocumentNames ?? schema.filter((doc) => doc.type === 'document').map((doc) => doc.name)
+    const docTypes = Object.keys(pathResolvers)
     const redirectSchema = createRedirectSchema(docTypes, documentTitleKey)
     return [...schema, redirectSchema]
   }

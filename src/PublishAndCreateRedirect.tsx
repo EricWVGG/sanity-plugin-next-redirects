@@ -10,6 +10,7 @@ import {
 import {useToast} from '@sanity/ui'
 import type {SanityNextRedirectsOptions, RedirecTypeEnum} from './types'
 import {DefaultDialogBox} from './DefaultDialogBox'
+import {PublishIcon} from '@sanity/icons'
 
 const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
   redirectDocumentName: 'redirect',
@@ -126,7 +127,8 @@ export const PublishAndCreateRedirect =
     }
 
     return {
-      label: isPublishing ? 'Publishing…' : 'Publish…',
+      label: isPublishing ? 'Publishing…' : 'Publish',
+      icon: PublishIcon,
       disabled: !props.draft,
       onHandle: () => checkForSlugChange(props.draft, props.published),
       dialog: isDialogOpen &&

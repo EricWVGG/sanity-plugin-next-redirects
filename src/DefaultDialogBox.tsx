@@ -1,4 +1,5 @@
 import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading} from '@sanity/ui'
+import {CloseIcon, PublishIcon} from '@sanity/icons'
 import type {DialogBoxProps} from './types'
 import pluralize from 'pluralize-esm'
 
@@ -13,17 +14,21 @@ export const DefaultDialogBox = ({
   createRedirectAndPublish,
 }: DialogBoxProps): React.ReactElement => {
   const ONE_DAY = 86400000 // milliseconds
+  const ONE_HOUR = 3600000 // milliseconds
 
   return (
     <Card padding={4}>
       <Stack space={[4, 6, 4, 4]}>
-        {!timeSinceCreated ? null : timeSinceCreated && timeSinceCreated < ONE_DAY ? (
-          <Heading>This document is under a day old and probably doesn’t need a redirect.</Heading>
+        {!timeSinceCreated ? null : timeSinceCreated && timeSinceCreated < ONE_HOUR ? (
+          <>
+            <Heading>This document is under a day old.</Heading>
+            <Text>.</Text>
+          </>
         ) : (
           <Stack space={4}>
             <Heading>
-              This document is {Math.ceil(timeSinceCreated / ONE_DAY)}{' '}
-              {pluralize('day', Math.ceil(timeSinceCreated / ONE_DAY))} old.
+              This document is {Math.ceil(timeSinceCreated / ONE_HOUR)}{' '}
+              {pluralize('hour', Math.ceil(timeSinceCreated / ONE_HOUR))} old.
             </Heading>
             <Text>
               If you think the document may have been indexed by search engines, or has been linked
@@ -41,16 +46,41 @@ export const DefaultDialogBox = ({
         {/* redirect type toggle? */}
 
         <Flex justify="flex-end" style={{gap: '8px'}}>
-          <Button type="button" onClick={closeDialogBox} tone="critical">
-            cancel
-          </Button>
+          <Card>
+            <Button
+              type="button"
+              onClick={closeDialogBox}
+              fontSize={1}
+              padding={[3]}
+              mode="ghost"
+              text="cancel"
+              icon={CloseIcon}
+              tone="critical"
+            />
+          </Card>
           <div style={{flexGrow: 1}} />
-          <Button type="button" onClick={publishNow} tone="default">
-            just Publish
-          </Button>
-          <Button type="button" onClick={createRedirectAndPublish} tone="primary">
-            Publish and create Redirect
-          </Button>
+          <Card>
+            <Button
+              type="button"
+              onClick={publishNow}
+              fontSize={1}
+              padding={[3]}
+              tone="caution"
+              text="just Publish"
+              icon={PublishIcon}
+            />
+          </Card>
+          <Card>
+            <Button
+              type="button"
+              onClick={createRedirectAndPublish}
+              fontSize={1}
+              padding={[3]}
+              tone="default"
+              text="Publish & Redirect"
+              icon={PublishIcon}
+            />
+          </Card>
         </Flex>
       </Stack>
     </Card>
