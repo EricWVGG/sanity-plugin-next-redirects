@@ -10,6 +10,7 @@ export interface SanityNextRedirectsOptions {
   hideRedirectType?: boolean
   customRedirectSchema?: SchemaTypeDefinition
   redirectSchemaName?: string
+  debug?: boolean
 }
 
 export type RedirecTypeEnum = 'PERMANENT' | 'TEMPORARY'

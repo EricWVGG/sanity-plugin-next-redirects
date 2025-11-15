@@ -361,4 +361,3 @@ If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Ad
 - - but would make `pathResolvers` clunkier
 - instructions to hide Redirect table from structureTool
 - more "document is X old" options
-- let's flatten TOAST_MESSAGE and TOAST_DURATION so we can deal with duration enum normal-style

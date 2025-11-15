@@ -22,6 +22,7 @@ export const PublishAndCreateRedirect =
       apiVersion,
       hideRedirectType,
       redirectSchemaName,
+      debug,
     } = config
 
     const DialogBox = config.dialogBoxComponent ?? DefaultDialogBox
@@ -51,12 +52,14 @@ export const PublishAndCreateRedirect =
     const checkForSlugChange = useCallback(
       (draft?: SanityDocument | null, published?: SanityDocument | null) => {
         if (!draft) {
-          // alert('This should be unreachable.')
+          if (debug) {
+            alert('Error: Publishing without a draft. This should be unreachable.')
+          }
           publishNow()
           return
         }
         if (!published) {
-          // alert('first time publishing this doc; proceed')
+          // first time publishing this doc; proceed
           publishNow()
           return
         }
@@ -77,13 +80,18 @@ export const PublishAndCreateRedirect =
 
     const createRedirectAndPublish = useCallback(async () => {
       if (!destination || !redirectPath) {
-        alert('ERROR (should be unreachable')
+        if (debug) {
+          alert('ERROR (should be unreachable')
+        }
         return
       }
       const client = context.getClient({
         apiVersion: apiVersion!,
       })
       if (!client) {
+        if (debug) {
+          alert('ERROR: client not found')
+        }
         throw new Error('client not found')
       }
       await client.create({
@@ -136,7 +144,7 @@ export const PublishAndCreateRedirect =
           onClose: () => setDialogOpen(false),
           header: 'Create a redirect?',
           content: !DialogBox ? (
-            <p>This should be unreachable.</p>
+            <p>Error: this should be unreachable!</p>
           ) : (
             <DialogBox
               timeSinceCreated={timeSinceCreated}

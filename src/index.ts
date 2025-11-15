@@ -13,6 +13,7 @@ export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions
     documentTitleKey,
     hideRedirectType,
     customRedirectSchema,
+    debug,
   }: SanityNextRedirectsOptions): SanityNextRedirectsOptions => ({
     pathResolvers,
     apiVersion,
@@ -22,6 +23,7 @@ export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions
     documentTitleKey,
     hideRedirectType: hideRedirectType ?? false,
     redirectSchemaName: customRedirectSchema?.name ?? 'redirect',
+    debug,
   })
 
   return {
