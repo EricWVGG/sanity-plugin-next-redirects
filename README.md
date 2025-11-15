@@ -2,13 +2,13 @@
 
 In a normal NextJS install, redirects take the form of a hard-coded table in the `next.config.ts` file. This usually works pretty well, but it turns into a hassle when active CMS users start playing around with the toys you’ve built.
 
-And if you’ve ever dealt with an “SEO guy” 🤪, you know they are _very_ interested in your redirects table. Get ready for hela support tickets.
+And if you’ve ever dealt with an “SEO guy” (🤪), you know they are _very_ interested in your redirects table. Get ready for hela support tickets.
 
-This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy 🤪 to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
+This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy (🤪) to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
 
 // image here
 
-Note: A site can get seriously donked up by careless redirects. 👮🏻‍♂️ _Make sure you trust anyone who gets access to this._ 🚓
+👮🏻‍♂️ _Make sure you trust anyone who gets access to this._ 🚓 A site can get seriously donked up by careless redirects.
 
 ## Installation
 
@@ -36,7 +36,7 @@ For example, you might have…
 
 ```typescript
 // pathResolvers.ts
-import {PathResolvers} from 'sanity-plugin-next-redirects'
+import type {PathResolvers} from 'sanity-plugin-next-redirects'
 
 const resolvePost = (doc: Sanity.PostQueryResult | Sanity.Post) => `/post/${doc.slug.current}`
 const resolvePage = (doc: Sanity.PageQueryResult | Sanity.Page) =>
@@ -69,6 +69,7 @@ import {sanityNextRedirects} from 'sanity-plugin-next-redirects'
 import pathResolvers from 'path/to/pathResolvers'
 
 export default defineConfig({
+  // …
   plugins: [
     sanityNextRedirects({
       pathResolvers,
@@ -81,9 +82,9 @@ export default defineConfig({
 
 ```typescript
 // next.config.ts
-import {client} from './src/sanity/lib/client'
 import {generateRedirects} from 'sanity-plugin-next-redirects'
-import pathResolvers from './src/sanity/lib/pathResolvers'
+import {client} from 'path/to/sanity/client'
+import pathResolvers from 'path/to/pathResolvers'
 
 export default {
   // …
@@ -120,7 +121,7 @@ const nextConfig = {
 }
 ```
 
-Now your SEO guy can manage these in Sanity. It's as easy as …
+Now your SEO guy (🤪) can manage these in Sanity. It's as easy as …
 
 1. create a new redirect
 2. give it the URL `/about-us`
@@ -146,26 +147,25 @@ And (your SEO guy will love this), the redirects are dynamic — they point to t
 
 ### Document titles
 
-If your schema documents use a field other than `title` to denote their titles (like `name`), feed that key to the `redirect` document schema.
+If your schema documents use a field other than `title` to denote their titles (like `name`), feed that key to the config.
 
 ```typescript
-// schema.ts
-import {pageSchema, postSchema, eventSchema} from 'path/to/schema/files'
-import {createRedirectSchema} from 'sanity-next-redirects'
+// sanity.config.ts
 
-export const schema: {types: SchemaTypeDefinition[]} = {
-  types: [
-    pageSchema,
-    postSchema,
-    eventSchema,
-    createRedirectSchema(['page', 'post', 'event'], 'name'),
-    // … you can use nested objects, too
-    createRedirectSchema(['page', 'post', 'event'], 'metadata.name'),
+export default defineConfig({
+  // …
+  plugins: [
+    sanityNextRedirects({
+      pathResolvers,
+      documentTitleKey: 'name',
+    }),
   ],
-}
+})
 ```
 
-### Custom Redirect schema
+If your documents use different field names for titles, you’ll need a custom schema…
+
+### Custom redirect schema
 
 If you need more control over the schema design, copy `sampleRedirectSchema.ts` into your own schema folder, edit it accordingly, and include that in the options.
 
@@ -176,6 +176,7 @@ You can add whatever additional fields, customize descriptions, and present inst
 import {customRedirectSchema} from 'path/to/schema/files'
 
 export default defineConfig({
+  // …
   plugins: [
     sanityNextRedirects({
       pathResolvers,
@@ -185,7 +186,7 @@ export default defineConfig({
 })
 ```
 
-Use this same method if you’re using different fields like `page.name`, `post.title`, and `event.eventName` across your various documents.
+You’ll need a custom schema if you’re using different fields like `name`, `title`, or `eventName` as titles across your various documents.
 
 ```typescript
 // your copy of sampleRedirectSchema.ts
@@ -234,6 +235,7 @@ The popup uses the Sanity Client to create the automatic redirects. If you want 
 // sanity.config.ts
 
 export default defineConfig({
+  // …
   plugins: [
     sanityNextRedirects({
       pathResolvers,
@@ -251,6 +253,7 @@ You can pop up a "toast" message when a redirect is made. I like to remind users
 // sanity.config.ts
 
 export default defineConfig({
+  // …
   plugins: [
     sanityNextRedirects({
       pathResolvers,
@@ -272,6 +275,7 @@ Make a copy of `DefaultDialogBox.tsx` from this repo, call it `CustomRedirectDia
 import {CustomRedirectDialogBox} from 'path/to/your/component'
 
 export default defineConfig({
+  // …
   plugins: [
     sanityNextRedirects({
       pathResolvers,
