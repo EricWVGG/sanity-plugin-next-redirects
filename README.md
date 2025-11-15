@@ -1,3 +1,11 @@
+# todo
+
+- usage without redirects dialog
+- describe installation with custom redirect table
+- combine pathResolver and titleResolver? would let us ditch `documentTitleKey `
+- instructions to hide Redirects table from structureTOol
+- more "document is X old" options
+
 # sanity-plugin-next-redirects
 
 If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. And if you are using NextJS, this means it’s in your codebase, so it’s hands-off to them.
@@ -6,41 +14,16 @@ This plugin…
 
 - creates a new `Redirects` document type in Sanity
 - which your SEO guy can “safely” use to create redirects
-- and when your users change slugs on documents, they’ll be given a popup asking if a redirect should be _automatically generated_
-- and producers some potentially cool helpers for your `sitemap.xml` and `rss.xml` feed too
+- and when your users change slugs on documents, they’ll be given a popup asking if a redirect should be automatically generated
+- and incidentally produces some cool helpers for your `sitemap.xml` and `rss.xml` feed too
 
-* A site can, of course, get its SEO donked up by careless redirects. Make sure you trust anyone who has access to this.
+* A site can, of course, get donked up by careless redirects. Make sure you trust anyone who has access to this.
 
 ## Installation
 
-### Add a new `redirect` document schema to Sanity.
+### Package and dependencies
 
-You will need to add a document type to track your individual redirects to your schema.
-
-This plugin includes a ready-to-use redirect schema generator. Just feed it the names of the documents you’d like this cover to track, and it will feed a new schema definition into Sanity.
-
-```typescript
-// schema.ts
-import {type SchemaTypeDefinition} from 'sanity'
-import {createRedirectSchema} from 'sanity-plugin-next-redirects'
-import {pageSchema, postSchema, eventSchema} from 'path/to/schemas'
-
-export const schema: {types: SchemaTypeDefinition[]} = {
-  types: [
-    pageSchema,
-    postSchema,
-    eventSchema,
-    createRedirectSchema([
-      // each of these is the `name` field in the document’s schema.
-      'page',
-      'post',
-      'event',
-    ]),
-  ],
-}
-```
-
-If you need more control over the schema design, see [custom schema]() below.
+`npm add sanity-plugin-next-redirects @sanity/ui @sanity/icons`
 
 ### Create path resolvers.
 
@@ -155,7 +138,7 @@ When the editor publishes the change, a dialog box will pop up asking if they’
 
 But if you’re running a high-traffic site, that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines, then getting an instant redirect for a slug change is a pretty big deal!
 
-And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `rescuing-my-daughter-from-labubus` to `i-fed-my-daughter-to-labubus` to `i-replaced-my-family-with-labubus`, each redirect will point to the article’s _latest, current slug_, not hop down the history from one change to the next.
+And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `i-fed-my-daughter-to-labubus` to `i-am-now-a-labubu`, each redirect will point directly to the article’s _current slug_, not hop up the history from one change to the next.
 
 ## Bonus — lets DRY out that sitemap
 
@@ -200,7 +183,7 @@ These could be used for an RSS feed too!
 
 ## Options and Customization
 
-### Custom document titles
+### Document titles
 
 If your schema documents use a field other than `title` to denote their titles (like `name`), feed that key to the `redirect` document schema.
 
@@ -215,22 +198,63 @@ export const schema: {types: SchemaTypeDefinition[]} = {
     postSchema,
     eventSchema,
     createRedirectSchema(['page', 'post', 'event'], 'name'),
+    // … you can use nested objects, too
+    createRedirectSchema(['page', 'post', 'event'], 'metadata.name'),
   ],
 }
 ```
 
-If you’re using `page.name`, `post.title`, and `event.eventName` to title your documents… we need to have a talk about polymorphism. But in the meantime, instead of using `createRedirectSchema()` as per above, copy `sampleRedirectSchema.ts` to your schemas folder and…
+### Custom Redirect schema
+
+If you need more control over the schema design, copy `sampleRedirectSchema.ts` into your own schema folder, edit it accordingly, and include that in the options.
+
+You can add whatever additional fields, customize descriptions, and present instructions however you like, but the `url`, `destination`, and `redirectType` fields are required by this plugin’s tooling.
+
+If you change the _name_ of the table (from `redirect` to `redirects` or `httpRedirects` or whatever), you’ll need to provide that as well.
 
 ```typescript
-export const mySillyRedirectSchema = defineType({
+// sanity.config.ts
+import {customRedirectSchema} from 'path/to/schema/files'
+
+export default defineConfig({
+  plugins: [
+    sanityNextRedirects({
+      pathResolvers,
+      customRedirectSchema,
+      redirectDocumentName: 'redirects',
+    }),
+  ],
+})
+```
+
+Use this same method if you’re using different fields like `page.name`, `post.title`, and `event.eventName` across your various documents.
+
+```typescript
+// your copy of sampleRedirectSchema.ts
+
+export const customRedirectSchema = defineType({
   // …
+  fields: [
+    /…
+    defineField({
+      name: 'destination',
+      type: 'reference',
+      // IMPORTANT: REPLACE WITH YOUR SCHEMA DOCUMENT TYPES
+      to: [{type: 'page'}, {type: 'post'}, {type: 'event'}],
+      // ^ THERE
+      validation: (rule) => rule.required(),
+    }),
+    // …
+  ],
   preview: {
     select: {
       title: 'url',
       redirectType: 'redirectType',
+      // SELECT VARIOUS DOCUMENT TITLES HERE
       pageTitle: `destination.name`,
       posTitle: `destination.title`,
       eventTitle: `destination.eventName`,
+      // ^ THERE
       slug: 'slug.current',
     },
     prepare: ({title, redirectType, pageTitle, posTitle, eventTitle, slug}) => {
@@ -242,13 +266,6 @@ export const mySillyRedirectSchema = defineType({
     },
   },
 })
-
-// schema.ts
-import {pageSchema, postSchema, eventSchema, mySillyRedirectSchema} from 'path/to/schema/files'
-
-export const schema: {types: SchemaTypeDefinition[]} = {
-  types: [pageSchema, postSchema, eventSchema, mySillyRedirectSchema],
-}
 ```
 
 ### Sanity API version
@@ -261,8 +278,10 @@ The popup uses the Sanity Client to create the automatic redirects. If you want 
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers,
+      pathResolvers,
       apiVersion: '2025-11-11',
+      // or…
+      apiVersion: process.env.SANITY_API_VERSION,
     }),
   ],
 })
@@ -278,7 +297,7 @@ You can pop up a "toast" message when a redirect is made. I like to remind users
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
-      resolvers,
+      pathResolvers,
       toastMessage: {
         title: 'Your redirect won’t go live until the site is deployed.',
         duration: 10000,
@@ -290,50 +309,11 @@ export default defineConfig({
 
 ### Custom Dialog Box
 
-You can replace the popup dialog box with your own React component with custom verbiage and options.
+You can replace the popup dialog box with your own React component and custom verbiage and options.
 
-For example, you might want to change or remove the built-in "This document is under a day old…" text, or add a `TEMPORARY/PERMANENT` switch. Make a copy of `DefaultDialogBox.tsx` called `CustomRedirectDialogBox.tsx`…
+Make a copy of `DefaultDialogBox.tsx` from this repo, call it `CustomRedirectDialogBox.tsx`, rewrite however you like, and feed it to the options.
 
-```typescript
-// CustomRedirectDialog.tsx
-import {Radio} from '@sanity/ui'
-import {type RedirecTypeEnum} from 'sanity-plugin-next-redirects'
-
-export const CustomRedirectDialog = ({
-  timeSinceCreated,
-  redirectPath,
-  destinationPath,
-  redirectType, // uncomment
-  setRedirectType, // uncomment
-}: // ...
-DialogBoxProps): React.ReactElement => {
-  return (
-    <Card padding={4}>
-      {/* … replace this line: */}
-      {/* redirect type toggle? */}
-      {/* with this… */}
-      <Label size={1}>Redirect type</Label>
-      <Flex>
-        <Radio
-          checked={redirectType === 'PERMANENT'}
-          value="PERMANENT"
-          onChange={(e) => setRedirectType(e.target.value)}
-        >
-          Permanent
-        </Radio>
-        <Radio
-          checked={redirectType === 'TEMPORARY'}
-          value="TEMPORARY"
-          onChange={(e) => setRedirectType(e.target.value)}
-        >
-          Permanent
-        </Radio>
-      </Flex>
-      {/* … */}
-    </Card>
-  )
-}
-
+```
 // sanity.config.ts
 import {CustomRedirectDialog} from 'path/to/component'
 
@@ -341,40 +321,10 @@ export default defineConfig({
   plugins: [
     sanityNextRedirects({
       pathResolvers,
-      DialogBox: CustomRedirectDialog,
+      dialogBoxComponent: CustomRedirectDialog,
     }),
   ],
 })
-```
-
-### Custom Redirect document name
-
-If you need to call your Sanity “redirect” schema document name something else, feed that name here.
-
-```typescript
-export default defineConfig({
-  plugins: [
-    sanityNextRedirects({
-      pathResolvers,
-      redirectDocumentName: 'redirects',
-    }),
-  ],
-})
-```
-
-### Custom Redirect schema
-
-If you need more control over the schema design, just copy `sampleRedirectSchema.ts` into your own schema folder, edit it accordingly, and insert that instead.
-
-You can add whatever additional fields, customize descriptions, and present instructions however you like, but the `url`, `destination`, and `redirectType` fields are required by this plugin’s tooling.
-
-```typescript
-import {type SchemaTypeDefinition} from 'sanity'
-import {pageSchema, postSchema, eventSchema, redirectSchema} from 'path/to/schemas'
-
-export const schema: {types: SchemaTypeDefinition[]} = {
-  types: [pageSchema, postSchema, eventSchema, redirectSchema],
-}
 ```
 
 ##

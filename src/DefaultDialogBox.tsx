@@ -1,4 +1,4 @@
-import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading} from '@sanity/ui'
+import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading, Radio} from '@sanity/ui'
 import {CloseIcon, PublishIcon} from '@sanity/icons'
 import type {DialogBoxProps} from './types'
 import pluralize from 'pluralize-esm'
@@ -7,8 +7,9 @@ export const DefaultDialogBox = ({
   timeSinceCreated,
   redirectPath,
   destinationPath,
-  // redirectType,
-  // setRedirectType,
+  hideRedirectType,
+  redirectType,
+  setRedirectType,
   closeDialogBox,
   publishNow,
   createRedirectAndPublish,
@@ -43,7 +44,27 @@ export const DefaultDialogBox = ({
         <Label size={1}>to…</Label>
         <TextInput type="text" value={destinationPath ?? ''} readOnly />
 
-        {/* redirect type toggle? */}
+        {!hideRedirectType && (
+          <>
+            <Label size={1}>Redirect type</Label>
+            <Flex>
+              <Radio
+                checked={redirectType === 'PERMANENT'}
+                value="PERMANENT"
+                onChange={(e) => setRedirectType('PERMANENT')}
+              >
+                Permanent
+              </Radio>
+              <Radio
+                checked={redirectType === 'TEMPORARY'}
+                value="TEMPORARY"
+                onChange={(e) => setRedirectType('TEMPORARY')}
+              >
+                Permanent
+              </Radio>
+            </Flex>
+          </>
+        )}
 
         <Flex justify="flex-end" style={{gap: '8px'}}>
           <Card>

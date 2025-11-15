@@ -1,3 +1,5 @@
+import type {SchemaTypeDefinition} from 'sanity'
+
 export interface SanityNextRedirectsOptions {
   pathResolvers: PathResolvers
   apiVersion?: string
@@ -5,9 +7,11 @@ export interface SanityNextRedirectsOptions {
     title: string
     duration?: number
   }
-  DialogBox?: (props: DialogBoxProps) => React.ReactElement
+  dialogBoxComponent?: (props: DialogBoxProps) => React.ReactElement
   redirectDocumentName?: string
   documentTitleKey?: string
+  hideRedirectType?: boolean
+  customRedirectSchema?: SchemaTypeDefinition
 }
 
 export type RedirecTypeEnum = 'PERMANENT' | 'TEMPORARY'
@@ -15,6 +19,8 @@ export type RedirecTypeEnum = 'PERMANENT' | 'TEMPORARY'
 type DialogBoxProps = {
   redirectPath: string
   destinationPath: string
+  hideRedirectType: boolean
+  redirectType: RedirecTypeEnum
   setRedirectType: (t: RedirectTypeEnum) => void
   timeSinceCreated?: number | null
   type?: string

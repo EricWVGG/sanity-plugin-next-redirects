@@ -4,11 +4,14 @@ import {regex} from 'sanity-advanced-validators'
 import type {SanityNextRedirectsOptions} from './types'
 
 export const withRedirectSchema =
-  ({documentTitleKey, pathResolvers}: SanityNextRedirectsOptions) =>
+  ({documentTitleKey, pathResolvers, customRedirectSchema}: SanityNextRedirectsOptions) =>
   (
     schema: Array<SchemaTypeDefinition>,
     _: Omit<ConfigContext, 'schema' | 'i18n' | 'currentUser' | 'getClient' | 'client'>
   ) => {
+    if (customRedirectSchema) {
+      return [...schema, customRedirectSchema]
+    }
     const docTypes = Object.keys(pathResolvers)
     const redirectSchema = createRedirectSchema(docTypes, documentTitleKey)
     return [...schema, redirectSchema]

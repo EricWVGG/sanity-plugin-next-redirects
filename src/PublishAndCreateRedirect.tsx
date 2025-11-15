@@ -15,7 +15,8 @@ import {PublishIcon} from '@sanity/icons'
 const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
   redirectDocumentName: 'redirect',
   apiVersion: '2025-07-16',
-  DialogBox: DefaultDialogBox,
+  dialogBoxComponent: DefaultDialogBox,
+  hideRedirectType: false,
 }
 
 const DEFAULT_TOAST_DURATION = 10000
@@ -29,7 +30,14 @@ export const PublishAndCreateRedirect =
     const toast = useToast()
     const [isDialogOpen, setDialogOpen] = useState(false)
 
-    const {toastMessage, pathResolvers, apiVersion, redirectDocumentName, DialogBox} = {
+    const {
+      toastMessage,
+      pathResolvers,
+      apiVersion,
+      redirectDocumentName,
+      hideRedirectType,
+      dialogBoxComponent: DialogBox,
+    } = {
       ...DEFAULTS,
       ...config,
     }
@@ -147,7 +155,9 @@ export const PublishAndCreateRedirect =
               closeDialogBox={() => setDialogOpen(false)}
               publishNow={publishNow}
               createRedirectAndPublish={createRedirectAndPublish}
+              redirectType={redirectType}
               setRedirectType={setRedirectType}
+              hideRedirectType={hideRedirectType!}
             />
           ),
         },
