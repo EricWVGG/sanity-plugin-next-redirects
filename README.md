@@ -1,15 +1,14 @@
 # sanity-plugin-next-redirects
 
-If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. And if you are using NextJS, this means it’s in your codebase, so it’s hands-off to them.
+In a normal NextJS install, redirects take the form of a hard-coded table in the `next.config.ts` file. This usually works pretty well, but it turns into a hassle when active CMS users start playing around with the toys you’ve built.
 
-This plugin…
+And if you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. Get ready for hela support tickets.
 
-- creates a new `Redirects` document type in Sanity
-- which your SEO guy can “safely” use to create redirects
-- and when your users change slugs on documents, they’ll be given a popup asking if a redirect should be automatically generated
-- and incidentally produces some cool helpers for your `sitemap.xml` and `rss.xml` feed too
+This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
 
-* A site can, of course, get donked up by careless redirects. Make sure you trust anyone who has access to this.
+// image here
+
+Note: A site can get seriously donked up by careless redirects. 👮🏻‍♂️ _Make sure you trust anyone who gets access to this._ 🚓
 
 ## Installation
 
@@ -129,13 +128,17 @@ Now your SEO guy can manage these in Sanity. It's as easy…
 
 If `About`’s slug ever changes, the redirect will keep up dynamically — because it points to the document, not the document slug.
 
+// img of document table in Sanity
+
 ### Automatically add redirects for changed slugs
 
 The real power of this comes with edits to existing pages. Let’s say one of your writers published an article at `/post/labubus-ate-my-daughter`, and later [the path gets changed](https://x.com/nyt_diff/status/1982455495848833122) to `/post/rescuing-my-daughter-from-the-cult-of-labubu`.
 
 When the editor publishes the change, a dialog box will pop up asking if they’d like to automatically create a redirect from the old URL to the new one. It includes a note on how old the document is — if it’s less than X hours old and you have a low-traffic site, you might want to skip the redirect, since it probably isn’t indexed by Google yet and it’s nice to keep the redirect table clean.
 
-But if you’re running a high-traffic site, that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines, then getting an instant redirect for a slug change is a pretty big deal!
+// img of popup
+
+But if you’re running a high-traffic site — one that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines — then getting an instant redirect for a slug change is a pretty big deal!
 
 And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `i-fed-my-daughter-to-labubus` to `i-am-now-a-labubu`, each redirect will point directly to the article’s _current slug_, not hop up the history from one change to the next.
 
@@ -199,7 +202,7 @@ export const customRedirectSchema = defineType({
       type: 'reference',
       // IMPORTANT: REPLACE WITH YOUR SCHEMA DOCUMENT TYPES
       to: [{type: 'page'}, {type: 'post'}, {type: 'event'}],
-      // ^ THERE
+      // ^ IMPORTANT
       validation: (rule) => rule.required(),
     }),
     // …
@@ -212,7 +215,7 @@ export const customRedirectSchema = defineType({
       pageTitle: `destination.name`,
       posTitle: `destination.title`,
       eventTitle: `destination.eventName`,
-      // ^ THERE
+      // ^ IMPORTANT
       slug: 'slug.current',
     },
     prepare: ({title, redirectType, pageTitle, posTitle, eventTitle, slug}) => {
@@ -237,8 +240,6 @@ export default defineConfig({
   plugins: [
     sanityNextRedirects({
       pathResolvers,
-      apiVersion: '2025-11-11',
-      // or…
       apiVersion: process.env.SANITY_API_VERSION,
     }),
   ],
@@ -271,15 +272,15 @@ You can replace the popup dialog box with your own React component and custom ve
 
 Make a copy of `DefaultDialogBox.tsx` from this repo, call it `CustomRedirectDialogBox.tsx`, rewrite however you like, and feed it to the options.
 
-```
+```typescript
 // sanity.config.ts
-import {CustomRedirectDialog} from 'path/to/component'
+import {CustomRedirectDialogBox} from 'path/to/your/component'
 
 export default defineConfig({
   plugins: [
     sanityNextRedirects({
       pathResolvers,
-      dialogBoxComponent: CustomRedirectDialog,
+      dialogBoxComponent: CustomRedirectDialogBox,
     }),
   ],
 })
@@ -287,30 +288,46 @@ export default defineConfig({
 
 ## Bonus: Sitemap & RSS
 
-If you were smart about your `sitemap.ts` file, you might have re-used resolver functions you already wrote. If not, let’s recycle the ones you just built.
+If you were smart about your `sitemap.ts` file, you might have recycled path resolvers that you already had. If not, let’s keep things DRY and recycle the new ones!
 
-Add `defineField({ name: 'priority', type: 'number' }) to your document schemas, if you'd like to manage that in Sanity as well.
+First, if you'd like to manage priority in Sanity as well, add the field to each document schema you’re tracking in the sitemap. This is optional but recommended.
 
 ```typescript
+// global constants
+const SITEMAP_DEFAULT_PRIORITY = 50
+
+// document schema
+fields: [
+  // …
+  defineField({
+    name: 'priority',
+    title: 'Sitemap document priority',
+    type: 'number'
+    validation: rule => rule.min(0).max(100),
+    initialValue: SITEMAP_DEFAULT_PRIORITY
+  }),
+]
+
 // src/app/sitemap.ts
 import {pageIndexQuery, postIndexQuery, eventIndexQuery} from 'path/to/sanity/queries'
 import {pathResolvers} from 'path/to/pathResolvers.ts'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const {page: pageResolver, post: postResolver, event: eventResolver} = pathResolvers
+  const calcPriority = (doc: {priority?: number}) => (!doc.priority ? SITEMAP_DEFAULT_PRIORITY : doc.priority) * 0.01
 
   const pagesData = await client.fetch(pageIndexQuery)
   const pages = pagesData.map((doc) => ({
     url: pageResolver(doc),
     lastModified: doc._updatedAt,
-    priority: doc.priority,
+    priority: calcPriority(doc)
   }))
 
   const postsData = await client.fetch(postIndexQuery)
   const posts = postsData.map((doc) => ({
     url: postResolver(doc),
     lastModified: doc._updatedAt,
-    priority: doc.priority,
+    priority: calcPriority(doc)
   }))
 
   const eventsData = await client.fetch(eventIndexQuery)
@@ -318,7 +335,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return {
       url: eventResolver(doc),
       lastModified: doc._updatedAt,
-      priority: doc.priority,
+      priority: calcPriority(doc)
     }
   })
 
@@ -326,19 +343,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 ```
 
-These could be used for an RSS feed too!
+The pathResolvers can be used for an RSS feed too.
 
 ##
 
-This is a relatively new plugin, and I've only used it with a couple projects. If you have any issues or ideas, please leave a note in the Github Issues.
+This is a relatively new plugin, and I've only used it with a couple projects. If you have any issues or ideas, please leave a note in the [Github issues](https://github.com/EricWVGG/sanity-plugin-next-redirects/issues).
 
-If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Advanced Validators package](https://github.com/EricWVGG/sanity-advanced-validators). It’s super effective!.
+If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Advanced Validators package](https://github.com/EricWVGG/sanity-advanced-validators). *It’s super effective!.*
 
 ## Future improvements
 
-- usage without redirects dialog (not recommended!)
-- - Should we add a thing that reverse-checks the redirects table for re-used slugs?
+- usage without redirects dialog (probably not recommended!)
+- - `options.suppressDialog`
+- a thing that reverse-checks the redirects table for re-used slugs
 - - Currently, nothing prevents a person from filing `/post/i-identify-as-a-labubusexual` as a redirect, then later using that as a new slug; the document will be unreachable.
-- combine pathResolver and titleResolver? would let us ditch `documentTitleKey `
-- instructions to hide Redirects table from structureTool
+- - "SELECT \* FROM redirect WHERE reddirect.url = pathResolve(doc)"
+- 1. Publish is intercepted
+- 2. Issue is explained
+- 3. options: Publish and Delete Redirect (recommended) | Publish and Leave Redirect (why??) | Cancel and edit slug
+- combine pathResolver and titleResolver?
+- - would let us ditch `documentTitleKey`
+- - but would make `pathResolvers` clunkier
+- instructions to hide Redirect table from structureTool
 - more "document is X old" options
