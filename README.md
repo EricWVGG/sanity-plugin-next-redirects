@@ -1,11 +1,3 @@
-# todo
-
-- usage without redirects dialog
-- describe installation with custom redirect table
-- combine pathResolver and titleResolver? would let us ditch `documentTitleKey `
-- instructions to hide Redirects table from structureTOol
-- more "document is X old" options
-
 # sanity-plugin-next-redirects
 
 If you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. And if you are using NextJS, this means it’s in your codebase, so it’s hands-off to them.
@@ -25,27 +17,32 @@ This plugin…
 
 `npm add sanity-plugin-next-redirects @sanity/ui @sanity/icons`
 
+or
+
+`yarn install sanity-plugin-next-redirects @sanity/ui @sanity/icons`
+
+or
+
+`pn add sanity-plugin-next-redirects @sanity/ui @sanity/icons`
+
 ### Create path resolvers.
 
 For each document type, you’ll need a function that resolves the document type to where it renders in your NextJS app.
 
 For example, you might have…
 
-- “page” documents handled by `/app/[slug]`, for page like `/about` or `/contact`
+- “page” documents handled by `/app/[slug]`, for pages like `/about` or `/contact`
 - "event" documents handled by `/app/event/[yyyy]/[mm]/[dd]/[slug]`, for listings like `/event/2025/11/28/black-friday-sale-on-labubus`
-- blog "post" documents handled by `/app/post/[slug]`, for posts like `/post/i-bought-my-daughter-a-labubu`
-
-Note: if you have already have functions that map document types to paths for your sitemap or other purposes, re-use ’em! If not, see `sitemap` section below.
+- "post" documents handled by `/app/post/[slug]`, for posts and articles like `/post/i-bought-my-daughter-a-labubu`
 
 ```typescript
 // pathResolvers.ts
 import {PathResolvers} from 'sanity-plugin-next-redirects'
 
-export const resolvePost = (doc: Sanity.PostQueryResult | Sanity.Post) =>
-  `/post/${doc.slug.current}`
-export const resolvePage = (doc: Sanity.PageQueryResult | Sanity.Page) =>
+const resolvePost = (doc: Sanity.PostQueryResult | Sanity.Post) => `/post/${doc.slug.current}`
+const resolvePage = (doc: Sanity.PageQueryResult | Sanity.Page) =>
   ['index', 'home'].includes(doc.slug.current) ? '/' : `/${doc.slug.current}`
-export const resolveEvent = (doc: Sanity.EventQueryResult | Sanity.Event) => {
+const resolveEvent = (doc: Sanity.EventQueryResult | Sanity.Event) => {
   var dateArray = doc.publishDate.split('-') || ['1969', '01', '01']
   var year = dateArray[0]
   var month = dateArray[1]
@@ -62,6 +59,8 @@ const pathResolvers: PathResolvers = {
 
 export default pathResolvers
 ```
+
+Note: if you have already have functions like these for your sitemap or RSS feed, re-use ’em! If not, see the [Bonus: Sitemap & RSS](#Bonus) section below.
 
 ### Add the plugin and pathResolvers to Sanity config.
 
@@ -132,54 +131,13 @@ If `About`’s slug ever changes, the redirect will keep up dynamically — beca
 
 ### Automatically add redirects for changed slugs
 
-The real power of this comes with edits to existing pages. Let’s say one of your writers published an article at `/post/labubus-ate-my-daughter`, and later the path gets changed to `/post/rescuing-my-daughter-from-the-cult-of-labubu`. (That’s a real example, by the way; [_The New York Times_ does this every day.](https://x.com/nyt_diff/status/1982455495848833122))
+The real power of this comes with edits to existing pages. Let’s say one of your writers published an article at `/post/labubus-ate-my-daughter`, and later [the path gets changed](https://x.com/nyt_diff/status/1982455495848833122) to `/post/rescuing-my-daughter-from-the-cult-of-labubu`.
 
 When the editor publishes the change, a dialog box will pop up asking if they’d like to automatically create a redirect from the old URL to the new one. It includes a note on how old the document is — if it’s less than X hours old and you have a low-traffic site, you might want to skip the redirect, since it probably isn’t indexed by Google yet and it’s nice to keep the redirect table clean.
 
 But if you’re running a high-traffic site, that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines, then getting an instant redirect for a slug change is a pretty big deal!
 
 And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `i-fed-my-daughter-to-labubus` to `i-am-now-a-labubu`, each redirect will point directly to the article’s _current slug_, not hop up the history from one change to the next.
-
-## Bonus — lets DRY out that sitemap
-
-If you were smart about your `sitemap.ts` file, you might have re-used resolver functions you already wrote. If not, let’s recycle the ones you just built.
-
-Also: you could add `defineField({ name: 'priority', type: 'number' }) to your document schemas, if you'd like to manage that in Sanity as well.
-
-```typescript
-// src/app/sitemap.ts
-import {pageIndexQuery, postIndexQuery, eventIndexQuery} from 'path/to/sanity/queries'
-import {pathResolvers} from 'path/to/pathResolvers.ts'
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const pagesData = await client.fetch(pageIndexQuery)
-  const pages = pagesData.map((doc) => ({
-    url: pathResolvers['page'](doc),
-    lastModified: doc._updatedAt,
-    priority: doc.priority,
-  }))
-
-  const postsData = await client.fetch(postIndexQuery)
-  const posts = postsData.map((doc) => ({
-    url: pathResolvers['post'](doc),
-    lastModified: doc._updatedAt,
-    priority: doc.priority,
-  }))
-
-  const eventsData = await client.fetch<Sanity.EventIndexQueryResult>(eventIndexQuery)
-  const events = eventsData.posts.map((doc) => {
-    return {
-      url: pathResolvers['event'](doc),
-      lastModified: doc._updatedAt,
-      priority: doc.priority,
-    }
-  })
-
-  return [...pages, ...posts, ...events]
-}
-```
-
-These could be used for an RSS feed too!
 
 ## Options and Customization
 
@@ -327,10 +285,60 @@ export default defineConfig({
 })
 ```
 
+## Bonus: Sitemap & RSS
+
+If you were smart about your `sitemap.ts` file, you might have re-used resolver functions you already wrote. If not, let’s recycle the ones you just built.
+
+Add `defineField({ name: 'priority', type: 'number' }) to your document schemas, if you'd like to manage that in Sanity as well.
+
+```typescript
+// src/app/sitemap.ts
+import {pageIndexQuery, postIndexQuery, eventIndexQuery} from 'path/to/sanity/queries'
+import {pathResolvers} from 'path/to/pathResolvers.ts'
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const {page: pageResolver, post: postResolver, event: eventResolver} = pathResolvers
+
+  const pagesData = await client.fetch(pageIndexQuery)
+  const pages = pagesData.map((doc) => ({
+    url: pageResolver(doc),
+    lastModified: doc._updatedAt,
+    priority: doc.priority,
+  }))
+
+  const postsData = await client.fetch(postIndexQuery)
+  const posts = postsData.map((doc) => ({
+    url: postResolver(doc),
+    lastModified: doc._updatedAt,
+    priority: doc.priority,
+  }))
+
+  const eventsData = await client.fetch(eventIndexQuery)
+  const events = eventsData.posts.map((doc) => {
+    return {
+      url: eventResolver(doc),
+      lastModified: doc._updatedAt,
+      priority: doc.priority,
+    }
+  })
+
+  return [...pages, ...posts, ...events]
+}
+```
+
+These could be used for an RSS feed too!
+
 ##
 
-This is a relatively young plugin, and I've only used it with a couple projects. If you have any issues or ideas, please leave a note in the Github Issues.
+This is a relatively new plugin, and I've only used it with a couple projects. If you have any issues or ideas, please leave a note in the Github Issues.
+
+If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Advanced Validators package](https://github.com/EricWVGG/sanity-advanced-validators). It’s super effective!.
 
 ## Future improvements
 
-I think the "this document is X old" needs to be a lot smarter, and have a configurable time limit option.
+- usage without redirects dialog (not recommended!)
+- - Should we add a thing that reverse-checks the redirects table for re-used slugs?
+- - Currently, nothing prevents a person from filing `/post/i-identify-as-a-labubusexual` as a redirect, then later using that as a new slug; the document will be unreachable.
+- combine pathResolver and titleResolver? would let us ditch `documentTitleKey `
+- instructions to hide Redirects table from structureTool
+- more "document is X old" options
