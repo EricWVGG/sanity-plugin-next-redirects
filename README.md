@@ -1,10 +1,10 @@
-# sanity-plugin-next-redirects
+# 🔀 Sanity ↖️ Plugin ⬇️ Next ⤴️ Redirects ↩️
 
 In a normal NextJS install, redirects take the form of a hard-coded table in the `next.config.ts` file. This usually works pretty well, but it turns into a hassle when active CMS users start playing around with the toys you’ve built.
 
-And if you’ve ever dealt with an “SEO guy”, you know they are _very_ interested in your redirects table. Get ready for hela support tickets.
+And if you’ve ever dealt with an “SEO guy” 🤪, you know they are _very_ interested in your redirects table. Get ready for hela support tickets.
 
-This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
+This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy 🤪 to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
 
 // image here
 
