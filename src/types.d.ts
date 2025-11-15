@@ -8,10 +8,10 @@ export interface SanityNextRedirectsOptions {
     duration?: number
   }
   dialogBoxComponent?: (props: DialogBoxProps) => React.ReactElement
-  redirectDocumentName?: string
   documentTitleKey?: string
   hideRedirectType?: boolean
   customRedirectSchema?: SchemaTypeDefinition
+  redirectSchemaName?: string
 }
 
 export type RedirecTypeEnum = 'PERMANENT' | 'TEMPORARY'

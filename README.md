@@ -120,13 +120,13 @@ const nextConfig = {
 }
 ```
 
-Now your SEO guy can manage these in Sanity. It's as easy…
+Now your SEO guy can manage these in Sanity. It's as easy as …
 
 1. create a new redirect
 2. give it the URL `/about-us`
 3. pick the `About` document from Sanity
 
-If `About`’s slug ever changes, the redirect will keep up dynamically — because it points to the document, not the document slug.
+If the document’s slug ever changes, this redirect will keep up dynamically — because it points to the document, not the document slug.
 
 // img of document table in Sanity
 
@@ -171,8 +171,6 @@ If you need more control over the schema design, copy `sampleRedirectSchema.ts` 
 
 You can add whatever additional fields, customize descriptions, and present instructions however you like, but the `url`, `destination`, and `redirectType` fields are required by this plugin’s tooling.
 
-If you change the _name_ of the table (from `redirect` to `redirects` or `httpRedirects` or whatever), you’ll need to provide that as well.
-
 ```typescript
 // sanity.config.ts
 import {customRedirectSchema} from 'path/to/schema/files'
@@ -182,7 +180,6 @@ export default defineConfig({
     sanityNextRedirects({
       pathResolvers,
       customRedirectSchema,
-      redirectDocumentName: 'redirects',
     }),
   ],
 })
@@ -357,12 +354,13 @@ If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Ad
 - - `options.suppressDialog`
 - a thing that reverse-checks the redirects table for re-used slugs
 - - Currently, nothing prevents a person from filing `/post/i-identify-as-a-labubusexual` as a redirect, then later using that as a new slug; the document will be unreachable.
-- - "SELECT \* FROM redirect WHERE reddirect.url = pathResolve(doc)"
-- 1. Publish is intercepted
-- 2. Issue is explained
-- 3. options: Publish and Delete Redirect (recommended) | Publish and Leave Redirect (why??) | Cancel and edit slug
+- - 1. "SELECT \* FROM redirect WHERE reddirect.url = pathResolve(doc)"
+- - 2. Publish is intercepted
+- - 3. Issue is explained
+- - 4. options: Publish and Delete Redirect (recommended) | Publish and Leave Redirect (why??) | Cancel and edit slug
 - combine pathResolver and titleResolver?
 - - would let us ditch `documentTitleKey`
 - - but would make `pathResolvers` clunkier
 - instructions to hide Redirect table from structureTool
 - more "document is X old" options
+- let's flatten TOAST_MESSAGE and TOAST_DURATION so we can deal with duration enum normal-style

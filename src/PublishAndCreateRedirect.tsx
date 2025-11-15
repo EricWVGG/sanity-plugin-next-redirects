@@ -9,16 +9,8 @@ import {
 } from 'sanity'
 import {useToast} from '@sanity/ui'
 import type {SanityNextRedirectsOptions, RedirecTypeEnum} from './types'
-import {DefaultDialogBox} from './DefaultDialogBox'
 import {PublishIcon} from '@sanity/icons'
-
-const DEFAULTS: Partial<SanityNextRedirectsOptions> = {
-  redirectDocumentName: 'redirect',
-  dialogBoxComponent: DefaultDialogBox,
-  hideRedirectType: false,
-}
-
-const DEFAULT_TOAST_DURATION = 10000
+import {DEFAULTS, DEFAULT_TOAST_DURATION} from './'
 
 export const PublishAndCreateRedirect =
   (context: DocumentActionsContext, config: SanityNextRedirectsOptions) =>
@@ -33,9 +25,9 @@ export const PublishAndCreateRedirect =
       toastMessage,
       pathResolvers,
       apiVersion,
-      redirectDocumentName,
       hideRedirectType,
       dialogBoxComponent: DialogBox,
+      redirectSchemaName,
     } = {
       ...DEFAULTS,
       ...config,
@@ -96,7 +88,7 @@ export const PublishAndCreateRedirect =
         throw new Error('client not found')
       }
       await client.create({
-        _type: redirectDocumentName!,
+        _type: redirectSchemaName!,
         destination: {
           _ref: id,
           _type: destination._type,
@@ -111,7 +103,7 @@ export const PublishAndCreateRedirect =
         })
       }
       publishNow()
-    }, [destination, redirectPath, redirectType, redirectDocumentName])
+    }, [destination, redirectPath, redirectType, redirectSchemaName])
 
     const publishNow = useCallback(() => {
       setDialogOpen(false)
