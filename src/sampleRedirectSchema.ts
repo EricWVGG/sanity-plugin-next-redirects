@@ -14,6 +14,7 @@ export const sampleRedirectSchema = defineType({
   fields: [
     defineField({
       name: 'url',
+      title: 'redirect from this URL:',
       description: 'relative url — ex. /events/some-event',
       type: 'string',
       validation: (rule) =>
@@ -22,12 +23,13 @@ export const sampleRedirectSchema = defineType({
           .custom(
             regex(
               /^\/[^?#]*(\?[^#]*)?(#.*)?$/,
-              'Please enter a valid URL path, not including the domain.',
-            ),
+              'Please enter a valid URL path, not including the domain.'
+            )
           ),
     }),
     defineField({
       name: 'destination',
+      title: 'to destination:',
       type: 'reference',
       // IMPORTANT: replace below with your document types
       to: [{type: 'page'}, {type: 'post'}, {type: 'event'}],

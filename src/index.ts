@@ -16,7 +16,7 @@ export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions
     debug,
   }: SanityNextRedirectsOptions): SanityNextRedirectsOptions => ({
     pathResolvers,
-    apiVersion,
+    apiVersion: apiVersion ?? '2025-08-25',
     toastMessage,
     toastDuration: toastDuration ?? 10000,
     dialogBoxComponent,

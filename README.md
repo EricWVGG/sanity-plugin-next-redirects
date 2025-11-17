@@ -6,7 +6,7 @@ And if you’ve ever dealt with an “SEO guy” (🤪), you know they are _very
 
 This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy (🤪) to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
 
-// image here
+![Modal prompting for a redirect](./assets/modal.png)
 
 👮🏻‍♂️ _Make sure you trust anyone who gets access to this._ 🚓 A site can get seriously donked up by careless redirects.
 
@@ -38,9 +38,11 @@ For example, you might have…
 // pathResolvers.ts
 import type {PathResolvers} from 'sanity-plugin-next-redirects'
 
-const resolvePost = (doc: Sanity.PostQueryResult | Sanity.Post) => `/post/${doc.slug.current}`
 const resolvePage = (doc: Sanity.PageQueryResult | Sanity.Page) =>
   ['index', 'home'].includes(doc.slug.current) ? '/' : `/${doc.slug.current}`
+
+const resolvePost = (doc: Sanity.PostQueryResult | Sanity.Post) => `/post/${doc.slug.current}`
+
 const resolveEvent = (doc: Sanity.EventQueryResult | Sanity.Event) => {
   var dateArray = doc.publishDate.split('-') || ['1969', '01', '01']
   var year = dateArray[0]
@@ -91,7 +93,7 @@ export default {
   async redirects() {
     const dynamicRedirects = await generateRedirects(client, pathResolvers)
     return [
-      // hard-coded redirects here…
+      // any hard-coded redirects you already had here…
       ...dynamicRedirects,
       // … or here
     ]
@@ -129,19 +131,19 @@ Now your SEO guy (🤪) can manage these in Sanity. It's as easy as …
 
 If the document’s slug ever changes, this redirect will keep up dynamically — because it points to the document, not the document slug.
 
-// img of document table in Sanity
+And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `i-fed-my-daughter-to-labubus` to `i-am-now-a-labubu`, each redirect will point directly to the article’s _current slug_, not hop up the history from one change to the next.
+
+![Redirect table in Sanity](./assets/table.png)
 
 ### Automatically add redirects for changed slugs
 
 The real power of this comes with edits to existing pages. Let’s say one of your writers published an article at `/post/labubus-ate-my-daughter`, and later [the path gets changed](https://x.com/nyt_diff/status/1982455495848833122) to `/post/rescuing-my-daughter-from-the-cult-of-labubu`.
 
-When the editor publishes the change, a dialog box will pop up asking if they’d like to automatically create a redirect from the old URL to the new one. It includes a note on how old the document is — if it’s less than X hours old and you have a low-traffic site, you might want to skip the redirect, since it probably isn’t indexed by Google yet and it’s nice to keep the redirect table clean.
+When the editor publishes the change, a dialog box will pop up asking if they’d like to automatically create a redirect from the old URL to the new one.
 
-// img of popup
+![Modal prompting for a redirect](./assets/modal.png)
 
-But if you’re running a high-traffic site — one that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines — then getting an instant redirect for a slug change is a pretty big deal!
-
-And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `i-fed-my-daughter-to-labubus` to `i-am-now-a-labubu`, each redirect will point directly to the article’s _current slug_, not hop up the history from one change to the next.
+It includes a note on how old the document is — if it’s less than X hours old and you have a low-traffic site, you might want to skip the redirect, since it probably isn’t indexed by Google yet and it’s nice to keep the redirect table clean. But if you’re running a high-traffic site — one that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines — then getting an instant redirect for a slug change is a pretty big deal!
 
 ## Options and Customization
 

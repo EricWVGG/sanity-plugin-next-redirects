@@ -1,7 +1,8 @@
-import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading, Radio} from '@sanity/ui'
+import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading, Radio, Inline} from '@sanity/ui'
 import {CloseIcon, PublishIcon} from '@sanity/icons'
 import type {DialogBoxProps} from './types'
 import pluralize from 'pluralize-esm'
+import styled from 'styled-components'
 
 export const DefaultDialogBox = ({
   timeSinceCreated,
@@ -47,21 +48,27 @@ export const DefaultDialogBox = ({
         {!hideRedirectType && (
           <>
             <Label size={1}>Redirect type</Label>
-            <Flex>
-              <Radio
-                checked={redirectType === 'PERMANENT'}
-                value="PERMANENT"
-                onChange={(e) => setRedirectType('PERMANENT')}
-              >
-                Permanent
-              </Radio>
-              <Radio
-                checked={redirectType === 'TEMPORARY'}
-                value="TEMPORARY"
-                onChange={(e) => setRedirectType('TEMPORARY')}
-              >
-                Permanent
-              </Radio>
+            <Flex align="center" gap={4}>
+              <Label size={3}>
+                <RadioLabel>
+                  <Radio
+                    checked={redirectType === 'PERMANENT'}
+                    value="PERMANENT"
+                    onChange={(e) => setRedirectType('PERMANENT')}
+                  />
+                  Permanent
+                </RadioLabel>
+              </Label>
+              <Label size={3}>
+                <RadioLabel>
+                  <Radio
+                    checked={redirectType === 'TEMPORARY'}
+                    value="TEMPORARY"
+                    onChange={(e) => setRedirectType('TEMPORARY')}
+                  />
+                  Temporary
+                </RadioLabel>
+              </Label>
             </Flex>
           </>
         )}
@@ -74,7 +81,7 @@ export const DefaultDialogBox = ({
               fontSize={1}
               padding={[3]}
               mode="ghost"
-              text="cancel"
+              text="Cancel"
               icon={CloseIcon}
               tone="critical"
             />
@@ -107,3 +114,11 @@ export const DefaultDialogBox = ({
     </Card>
   )
 }
+
+const RadioLabel = styled.label`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  text-box: trim-both cap alphabetic;
+`

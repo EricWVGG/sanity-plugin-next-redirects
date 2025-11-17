@@ -17,6 +17,8 @@ export const withRedirectSchema =
     return [...schema, redirectSchema]
   }
 
+// todo: it would be nice if we could pick up `sampleRedirectSchema.ts` and insert the necessary values.
+
 export const createRedirectSchema = (types: Array<string>, documentTitleKey: string = 'title') =>
   defineType({
     name: 'redirect',
@@ -26,6 +28,7 @@ export const createRedirectSchema = (types: Array<string>, documentTitleKey: str
     fields: [
       defineField({
         name: 'url',
+        title: 'redirect from this URL:',
         description: 'relative url — ex. /events/some-event',
         type: 'string',
         validation: (rule) =>
@@ -40,6 +43,7 @@ export const createRedirectSchema = (types: Array<string>, documentTitleKey: str
       }),
       defineField({
         name: 'destination',
+        title: 'to destination:',
         type: 'reference',
         to: types.map((type) => ({type})),
         validation: (rule) => rule.required(),
