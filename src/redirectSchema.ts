@@ -68,7 +68,7 @@ export const createRedirectSchema = (types: Array<string>, documentTitleKey: str
       },
       prepare: ({title, redirectType, destination}) => ({
         title,
-        subtitle: `${redirectType.toLowerCase()} -> “${destination}”`,
+        subtitle: `${redirectType === 'TEMPORARY' ? 'T' : 'P'} → “${destination}”`,
       }),
     },
   })

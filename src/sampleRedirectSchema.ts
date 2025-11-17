@@ -55,7 +55,7 @@ export const sampleRedirectSchema = defineType({
     },
     prepare: ({title, redirectType, destination}) => ({
       title,
-      subtitle: `${redirectType.toLowerCase()} -> “${destination}”`,
+      subtitle: `${redirectType === 'TEMPORARY' ? 'T' : 'P'} → “${destination}”`,
     }),
   },
 })

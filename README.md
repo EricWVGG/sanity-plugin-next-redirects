@@ -222,7 +222,7 @@ export const customRedirectSchema = defineType({
       const destination = pageTitle ?? posTitle ?? eventTitle ?? slug
       return {
         title,
-        subtitle: `${redirectType.toLowerCase()} -> “${destination}”`,
+        subtitle: `${redirectType.toLowerCase()} → “${destination}”`,
       }
     },
   },
