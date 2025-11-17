@@ -61,7 +61,7 @@ const pathResolvers: PathResolvers = {
 export default pathResolvers
 ```
 
-Note: if you have already have functions like these for your sitemap or RSS feed, re-use ’em! If not, see the [Bonus: Sitemap & RSS](#Bonus) section below.
+Note: if you have already have functions like these for your sitemap or RSS feed, re-use ’em! If not, see the [Bonus: Sitemap & RSS](#bonus-sitemap--rss) section below.
 
 ### Add the plugin and pathResolvers to Sanity config.
 
