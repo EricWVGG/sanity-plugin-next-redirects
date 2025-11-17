@@ -287,6 +287,27 @@ export default defineConfig({
 })
 ```
 
+### Suppress Dialog Box (auto-create-redirect)
+
+If you _always_ want a redirect created upon slug change, add `suppressDialog` to the config.
+
+Be aware that this can make your redirect table get pretty cluttered pretty quickly.
+
+```typescript
+// sanity.config.ts
+import {CustomRedirectDialogBox} from 'path/to/your/component'
+
+export default defineConfig({
+  // …
+  plugins: [
+    sanityNextRedirects({
+      pathResolvers,
+      suppressDialog: true,
+    }),
+  ],
+})
+```
+
 ## Bonus: Sitemap & RSS
 
 If you were smart about your `sitemap.ts` file, you might have recycled path resolvers that you already had. If not, let’s keep things DRY and recycle the new ones!
@@ -303,9 +324,9 @@ fields: [
   defineField({
     name: 'priority',
     title: 'Sitemap document priority',
-    type: 'number'
-    validation: rule => rule.min(0).max(100),
-    initialValue: SITEMAP_DEFAULT_PRIORITY
+    type: 'number',
+    validation: (rule) => rule.min(0).max(100),
+    initialValue: SITEMAP_DEFAULT_PRIORITY,
   }),
 ]
 
@@ -315,30 +336,30 @@ import {pathResolvers} from 'path/to/pathResolvers.ts'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const {page: pageResolver, post: postResolver, event: eventResolver} = pathResolvers
-  const calcPriority = (doc: {priority?: number}) => (!doc.priority ? SITEMAP_DEFAULT_PRIORITY : doc.priority) * 0.01
+
+  const calcPriority = (doc: {priority?: number}) =>
+    (doc.priority ?? SITEMAP_DEFAULT_PRIORITY) * 0.01
 
   const pagesData = await client.fetch(pageIndexQuery)
   const pages = pagesData.map((doc) => ({
     url: pageResolver(doc),
     lastModified: doc._updatedAt,
-    priority: calcPriority(doc)
+    priority: calcPriority(doc),
   }))
 
   const postsData = await client.fetch(postIndexQuery)
   const posts = postsData.map((doc) => ({
     url: postResolver(doc),
     lastModified: doc._updatedAt,
-    priority: calcPriority(doc)
+    priority: calcPriority(doc),
   }))
 
   const eventsData = await client.fetch(eventIndexQuery)
-  const events = eventsData.posts.map((doc) => {
-    return {
-      url: eventResolver(doc),
-      lastModified: doc._updatedAt,
-      priority: calcPriority(doc)
-    }
-  })
+  const events = eventsData.posts.map((doc) => ({
+    url: eventResolver(doc),
+    lastModified: doc._updatedAt,
+    priority: calcPriority(doc),
+  }))
 
   return [...pages, ...posts, ...events]
 }
@@ -355,10 +376,9 @@ If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Ad
 ## Future improvements
 
 - usage without redirects dialog (probably not recommended!)
-- - `options.suppressDialog`
 - a thing that reverse-checks the redirects table for re-used slugs
 - - Currently, nothing prevents a person from filing `/post/i-identify-as-a-labubusexual` as a redirect, then later using that as a new slug; the document will be unreachable.
-- - 1. "SELECT \* FROM redirect WHERE reddirect.url = pathResolve(doc)"
+- - 1. "SELECT \* FROM redirect WHERE redirect.url = pathResolve(doc)"
 - - 2. Publish is intercepted
 - - 3. Issue is explained
 - - 4. options: Publish and Delete Redirect (recommended) | Publish and Leave Redirect (why??) | Cancel and edit slug

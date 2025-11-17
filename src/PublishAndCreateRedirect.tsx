@@ -23,6 +23,7 @@ export const PublishAndCreateRedirect =
       hideRedirectType,
       redirectSchemaName,
       debug,
+      suppressDialog,
     } = config
 
     const DialogBox = config.dialogBoxComponent ?? DefaultDialogBox
@@ -68,6 +69,10 @@ export const PublishAndCreateRedirect =
         const newPath = resolvePath(draft)
         if (oldPath === newPath) {
           publishNow()
+          return
+        }
+        if (suppressDialog) {
+          void createRedirectAndPublish(draft, oldPath)
         } else {
           setRedirectPath(oldPath)
           setDestinationPath(newPath)
@@ -78,39 +83,42 @@ export const PublishAndCreateRedirect =
       []
     )
 
-    const createRedirectAndPublish = useCallback(async () => {
-      if (!destination || !redirectPath) {
-        if (debug) {
-          alert('ERROR (should be unreachable')
+    const createRedirectAndPublish = useCallback(
+      async (destination: SanityDocument, redirectPath: string) => {
+        if (!destination || !redirectPath) {
+          if (debug) {
+            alert('ERROR (should be unreachable')
+          }
+          return
         }
-        return
-      }
-      const client = context.getClient({
-        apiVersion: apiVersion!,
-      })
-      if (!client) {
-        if (debug) {
-          alert('ERROR: client not found')
-        }
-        throw new Error('client not found')
-      }
-      await client.create({
-        _type: redirectSchemaName!,
-        destination: {
-          _ref: id,
-          _type: destination._type,
-        },
-        redirectType,
-        url: redirectPath,
-      })
-      if (!!toastMessage) {
-        toast.push({
-          title: toastMessage,
-          duration: toastDuration,
+        const client = context.getClient({
+          apiVersion: apiVersion!,
         })
-      }
-      publishNow()
-    }, [destination, redirectPath, redirectType, redirectSchemaName])
+        if (!client) {
+          if (debug) {
+            alert('ERROR: client not found')
+          }
+          throw new Error('client not found')
+        }
+        await client.create({
+          _type: redirectSchemaName!,
+          destination: {
+            _ref: id,
+            _type: destination._type,
+          },
+          redirectType,
+          url: redirectPath,
+        })
+        if (!!toastMessage) {
+          toast.push({
+            title: toastMessage,
+            duration: toastDuration,
+          })
+        }
+        publishNow()
+      },
+      []
+    )
 
     const publishNow = useCallback(() => {
       setDialogOpen(false)
@@ -152,7 +160,7 @@ export const PublishAndCreateRedirect =
               destinationPath={destinationPath}
               closeDialogBox={() => setDialogOpen(false)}
               publishNow={publishNow}
-              createRedirectAndPublish={createRedirectAndPublish}
+              createRedirectAndPublish={() => createRedirectAndPublish(destination!, redirectPath)}
               redirectType={redirectType}
               setRedirectType={setRedirectType}
               hideRedirectType={hideRedirectType!}
