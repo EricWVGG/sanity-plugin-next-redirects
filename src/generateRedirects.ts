@@ -12,7 +12,7 @@ export const generateRedirects = async (
   const data = await client.fetch(customRedirectQuery ?? defaultRedirectQuery)
   return data.reduce((acc: Array<Redirect>, doc: any) => {
     const destination = pathResolvers.hasOwnProperty(doc.destination._type)
-      ? pathResolvers[doc.destination._type](doc)
+      ? pathResolvers[doc.destination._type](doc.destination)
       : null
     return [
       ...acc,

@@ -50,7 +50,7 @@ export const sampleRedirectSchema = defineType({
   preview: {
     select: {
       title: 'url',
-      destination: 'destination.title',
+      destination: 'title',
       redirectType: 'redirectType',
     },
     prepare: ({title, redirectType, destination}) => ({

@@ -5,8 +5,7 @@ export const redirectQuery = defineQuery(`
     ...,
     destination -> {
       _type,
-      eventDate,
-      metadata
+      slug
     }
   }
 `)

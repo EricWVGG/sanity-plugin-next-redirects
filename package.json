@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-next-redirects",
-  "version": "0.9.0",
+  "version": "0.1.1",
   "description": "Facilitates a dynamic redirect table in NextJS with Sanity.",
   "keywords": [
     "sanity",
