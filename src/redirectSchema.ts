@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import type {SchemaTypeDefinition, ConfigContext} from 'sanity'
 import {regex} from 'sanity-advanced-validators'
 import type {SanityNextRedirectsOptions} from './types'
+import {IconTemporary, IconPermanent} from './Icons'
 
 export const withRedirectSchema =
   ({documentTitleKey, pathResolvers, customRedirectSchema}: SanityNextRedirectsOptions) =>
@@ -64,11 +65,12 @@ export const createRedirectSchema = (types: Array<string>, documentTitleKey: str
       select: {
         title: 'url',
         redirectType: 'redirectType',
-        destination: `destination.${documentTitleKey}`,
+        subtitle: `destination.${documentTitleKey}`,
       },
-      prepare: ({title, redirectType, destination}) => ({
+      prepare: ({title, redirectType, subtitle}) => ({
         title,
-        subtitle: `${redirectType === 'TEMPORARY' ? 'T' : 'P'} → “${destination}”`,
+        subtitle,
+        media: redirectType === 'TEMPORARY' ? IconTemporary : IconPermanent,
       }),
     },
   })

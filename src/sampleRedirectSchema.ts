@@ -1,5 +1,6 @@
 import {defineField, defineType} from 'sanity'
 import {regex} from 'sanity-advanced-validators'
+// import {IconTemporary, IconPermanent} from 'sanity-plugin-next-redirects'
 
 /*
 NOTE: the fields `url`, `destination`, and `redirectType` are *required*.
@@ -50,12 +51,13 @@ export const sampleRedirectSchema = defineType({
   preview: {
     select: {
       title: 'url',
-      destination: 'title',
+      subtitle: 'title',
       redirectType: 'redirectType',
     },
-    prepare: ({title, redirectType, destination}) => ({
+    prepare: ({title, subtitle, redirectType}) => ({
       title,
-      subtitle: `${redirectType === 'TEMPORARY' ? 'T' : 'P'} → “${destination}”`,
+      subtitle,
+      // media: redirectType === 'TEMPORARY' ? IconTemporary : IconPermanent,
     }),
   },
 })
