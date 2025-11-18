@@ -15,7 +15,7 @@ export const DefaultDialogBox = ({
   publishNow,
   createRedirectAndPublish,
 }: DialogBoxProps): React.ReactElement => {
-  const ONE_DAY = 86400000 // milliseconds
+  // const ONE_DAY = 86400000 // milliseconds
   const ONE_HOUR = 3600000 // milliseconds
 
   return (
@@ -54,7 +54,7 @@ export const DefaultDialogBox = ({
                   <Radio
                     checked={redirectType === 'PERMANENT'}
                     value="PERMANENT"
-                    onChange={(e) => setRedirectType('PERMANENT')}
+                    onChange={() => setRedirectType('PERMANENT')}
                   />
                   Permanent
                 </RadioLabel>
@@ -64,7 +64,7 @@ export const DefaultDialogBox = ({
                   <Radio
                     checked={redirectType === 'TEMPORARY'}
                     value="TEMPORARY"
-                    onChange={(e) => setRedirectType('TEMPORARY')}
+                    onChange={() => setRedirectType('TEMPORARY')}
                   />
                   Temporary
                 </RadioLabel>
