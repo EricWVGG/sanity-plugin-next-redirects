@@ -2,6 +2,10 @@
   "name": "sanity-plugin-next-redirects",
   "version": "0.2.0",
   "description": "Facilitates a dynamic redirect table in NextJS with Sanity.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EricWVGG/sanity-plugin-next-redirects.git"
+  },
   "keywords": [
     "sanity",
     "sanity-plugin"

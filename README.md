@@ -1,4 +1,4 @@
-# 🔀 Sanity ↖️ Plugin ⬇️ Next ⤴️ Redirects ↩️
+# ↖️ Sanity ⤴️ Plugin ⬇️ Next ↩️ Redirects 🔀
 
 In a normal NextJS install, redirects take the form of a hard-coded table in the `next.config.ts` file. This usually works pretty well, but it turns into a hassle when active CMS users start playing around with the toys you’ve built.
 
@@ -6,7 +6,7 @@ And if you’ve ever dealt with an “SEO guy” (🤪), you know they are _very
 
 This plugin creates a new `redirect` document type in Sanity. When your users change slugs on documents, they’ll be given a popup asking if a redirect should be ✨automagically✨ generated. Plus, you get a convenient Sanity UI for your SEO guy (🤪) to wreck havoc with. And you even get some handy tools for your Sitemap and RSS feeds to boot!
 
-![Modal prompting for a redirect](./assets/modal.png)
+![Modal prompting for a redirect](https://github.com/EricWVGG/sanity-plugin-next-redirects/blob/main/assets/modal.png?raw=true)
 
 👮🏻‍♂️ _Make sure you trust anyone who gets access to this._ 🚓 A site can get seriously donked up by careless redirects.
 
@@ -133,7 +133,7 @@ If the document’s slug ever changes, this redirect will keep up dynamically �
 
 And (your SEO guy will love this), the redirects are dynamic — they point to the document, not the old slug. If an article changes from `labubus-ate-my-daughter` to `i-fed-my-daughter-to-labubus` to `i-am-now-a-labubu`, each redirect will point directly to the article’s _current slug_, not hop up the history from one change to the next.
 
-![Redirect table in Sanity](./assets/table.png)
+![Redirect table in Sanity](https://github.com/EricWVGG/sanity-plugin-next-redirects/blob/main/assets/table.png?raw=true)
 
 ### Automatically add redirects for changed slugs
 
@@ -141,7 +141,7 @@ The real power of this comes with edits to existing pages. Let’s say one of yo
 
 When the editor publishes the change, a dialog box will pop up asking if they’d like to automatically create a redirect from the old URL to the new one.
 
-![Modal prompting for a redirect](./assets/modal.png)
+![Modal prompting for a redirect](https://github.com/EricWVGG/sanity-plugin-next-redirects/blob/main/assets/modal.png?raw=true)
 
 It includes a note on how old the document is — if it’s less than X hours old and you have a low-traffic site, you might want to skip the redirect, since it probably isn’t indexed by Google yet and it’s nice to keep the redirect table clean. But if you’re running a high-traffic site — one that’s already gathering links on X the Everything App™ and is aggressively indexed by search engines — then getting an instant redirect for a slug change is a pretty big deal!
 
