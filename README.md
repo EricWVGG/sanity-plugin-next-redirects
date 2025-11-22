@@ -1,4 +1,4 @@
-# ↖️ Sanity ⤴️ Plugin ⬇️ Next ↩️ Redirects 🔀
+# ↖️ Sanity ⤴️ Plugin ↩️ Next ⬇️ Redirects 🔀
 
 In a normal NextJS install, redirects take the form of a hard-coded table in the `next.config.ts` file. This usually works pretty well, but it turns into a hassle when active CMS users start playing around with the toys you’ve built.
 

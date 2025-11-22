@@ -15,22 +15,24 @@ export const DefaultDialogBox = ({
   publishNow,
   createRedirectAndPublish,
 }: DialogBoxProps): React.ReactElement => {
-  // const ONE_DAY = 86400000 // milliseconds
-  const ONE_HOUR = 3600000 // milliseconds
+  const ONE_DAY = 86400000 // milliseconds
+  // const ONE_HOUR = 3600000 // milliseconds
 
   return (
     <Card padding={4}>
       <Stack space={[4, 6, 4, 4]}>
-        {!timeSinceCreated ? null : timeSinceCreated && timeSinceCreated < ONE_HOUR ? (
+        {!timeSinceCreated ? null : timeSinceCreated && timeSinceCreated < ONE_DAY ? (
           <>
             <Heading>This document is under a day old.</Heading>
-            <Text>.</Text>
+            <Text>
+              If this page hasn’t been shared publicly, it probably doesn't need a redirect.
+            </Text>
           </>
         ) : (
           <Stack space={4}>
             <Heading>
-              This document is {Math.ceil(timeSinceCreated / ONE_HOUR)}{' '}
-              {pluralize('hour', Math.ceil(timeSinceCreated / ONE_HOUR))} old.
+              This document is {Math.ceil(timeSinceCreated / ONE_DAY)}{' '}
+              {pluralize('day', Math.ceil(timeSinceCreated / ONE_DAY))} old.
             </Heading>
             <Text>
               If you think the document may have been indexed by search engines, or has been linked
