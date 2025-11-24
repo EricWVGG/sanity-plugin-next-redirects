@@ -375,13 +375,6 @@ If you’re enough of a Sanity wonk to find this useful, check out my [Sanity Ad
 
 ## Future improvements
 
-- usage without redirects dialog (probably not recommended!)
-- a thing that reverse-checks the redirects table for re-used slugs
-- - Currently, nothing prevents a person from filing `/post/i-identify-as-a-labubusexual` as a redirect, then later using that as a new slug; the document will be unreachable.
-- - 1. "SELECT \* FROM redirect WHERE redirect.url = pathResolve(doc)"
-- - 2. Publish is intercepted
-- - 3. Issue is explained
-- - 4. options: Publish and Delete Redirect (recommended) | Publish and Leave Redirect (why??) | Cancel and edit slug
 - combine pathResolver and titleResolver?
 - - would let us ditch `documentTitleKey`
 - - but would make `pathResolvers` clunkier
