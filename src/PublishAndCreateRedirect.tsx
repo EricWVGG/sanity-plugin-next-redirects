@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react'
+import {useState, useEffect, useMemo} from 'react'
 import {
   useDocumentOperation,
   type DocumentActionDescription,
@@ -28,6 +28,8 @@ export const PublishAndCreateRedirect =
 
     const DialogBox = config.dialogBoxComponent ?? DefaultDialogBox
 
+    const {onComplete} = props
+
     const {id, type} = props
     const {publish} = useDocumentOperation(id, type)
     const [isPublishing, setIsPublishing] = useState(false)
@@ -42,6 +44,14 @@ export const PublishAndCreateRedirect =
     // this is the destination for the new redirect
     const [redirectType, setRedirectType] = useState<RedirecTypeEnum>('PERMANENT')
 
+    const client = useMemo(
+      () =>
+        context.getClient({
+          apiVersion: apiVersion!,
+        }),
+      [context]
+    )
+
     useEffect(() => {
       // if the isPublishing state was set to true and the draft has changed
       // to become `null` the document has been published
@@ -50,86 +60,83 @@ export const PublishAndCreateRedirect =
       }
     }, [props.draft])
 
-    const checkForSlugChange = useCallback(
-      (draft?: SanityDocument | null, published?: SanityDocument | null) => {
-        if (!draft) {
-          if (debug) {
-            alert('Error: Publishing without a draft. This should be unreachable.')
-          }
-          publishNow()
-          return
-        }
-        if (!published) {
-          // first time publishing this doc; proceed
-          publishNow()
-          return
-        }
-        const resolvePath = pathResolvers[draft._type]
-        const oldPath = resolvePath(published)
-        const newPath = resolvePath(draft)
-        if (oldPath === newPath) {
-          publishNow()
-          return
-        }
-        if (suppressDialog) {
-          void createRedirectAndPublish(draft, oldPath)
-        } else {
-          setRedirectPath(oldPath)
-          setDestinationPath(newPath)
-          setDestination(draft)
-          setDialogOpen(true)
-        }
-      },
-      []
-    )
+    const debugMessage = (message: string) => {
+      if (debug) {
+        alert(message)
+      }
+    }
 
-    const createRedirectAndPublish = useCallback(
-      async (destination: SanityDocument, redirectPath: string) => {
-        if (!destination || !redirectPath) {
-          if (debug) {
-            alert('ERROR (should be unreachable')
-          }
-          return
-        }
-        const client = context.getClient({
-          apiVersion: apiVersion!,
-        })
-        if (!client) {
-          if (debug) {
-            alert('ERROR: client not found')
-          }
-          throw new Error('client not found')
-        }
-        await client.create({
-          _type: redirectSchemaName!,
-          destination: {
-            _ref: id,
-            _type: destination._type,
-          },
-          redirectType,
-          url: redirectPath,
-        })
-        if (!!toastMessage) {
-          toast.push({
-            title: toastMessage,
-            duration: toastDuration,
-          })
-        }
+    const checkForSlugChange = (
+      draft?: SanityDocument | null,
+      published?: SanityDocument | null
+    ) => {
+      if (!draft) {
+        debugMessage('Error: Publishing without a draft. This should be unreachable.')
         publishNow()
-      },
-      []
-    )
+        return
+      }
+      if (!published) {
+        debugMessage('first time publishing this doc; proceed')
+        publishNow()
+        return
+      }
+      const resolvePath = pathResolvers[draft._type]
+      const oldPath = resolvePath(published)
+      const newPath = resolvePath(draft)
+      if (oldPath === newPath) {
+        debugMessage('no slug change; proceed')
+        publishNow()
+        return
+      }
+      if (suppressDialog) {
+        debugMessage('slug change; proceed without modal check')
+        void createRedirectAndPublish(draft, oldPath)
+      } else {
+        debugMessage('slug change; display proceed options')
+        setRedirectPath(oldPath)
+        setDestinationPath(newPath)
+        setDestination(draft)
+        setDialogOpen(true)
+      }
+    }
 
-    const publishNow = useCallback(() => {
+    const createRedirectAndPublish = async (destination: SanityDocument, redirectPath: string) => {
+      if (!destination || !redirectPath) {
+        debugMessage('ERROR (should be unreachable')
+        return
+      }
+      debugMessage('creating redirect')
+      await client.create({
+        _type: redirectSchemaName!,
+        destination: {
+          _ref: id,
+          _type: destination._type,
+        },
+        redirectType,
+        url: redirectPath,
+      })
+      if (!!toastMessage) {
+        toast.push({
+          title: toastMessage,
+          duration: toastDuration,
+        })
+      }
+      publishNow()
+    }
+
+    const publishNow = () => {
+      debugMessage('publishing')
       setDialogOpen(false)
       setIsPublishing(true)
       // Perform the publish
       publish.execute()
+      debugMessage('publish executed')
       // Signal that the action is completed
-      props.onComplete()
+      onComplete()
+      debugMessage('publish complete')
       setRedirectPath(null)
       setDestinationPath(null)
-    }, [])
+    }
 
     const dateOfDocument = props.published?._createdAt
       ? new Date(props.published?._createdAt)
