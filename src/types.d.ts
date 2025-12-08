@@ -14,13 +14,13 @@ export interface SanityNextRedirectsOptions {
   debug?: boolean
 }
 
-export type RedirecTypeEnum = 'PERMANENT' | 'TEMPORARY'
+export type RedirectTypeEnum = 'PERMANENT' | 'TEMPORARY'
 
 type DialogBoxProps = {
   redirectPath: string
   destinationPath: string
   hideRedirectType: boolean
-  redirectType: RedirecTypeEnum
+  redirectType: RedirectTypeEnum
   setRedirectType: (t: RedirectTypeEnum) => void
   timeSinceCreated?: number | null
   type?: string

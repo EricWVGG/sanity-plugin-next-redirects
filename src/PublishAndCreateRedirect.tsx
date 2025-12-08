@@ -8,7 +8,7 @@ import {
   type DocumentActionComponent,
 } from 'sanity'
 import {useToast} from '@sanity/ui'
-import type {SanityNextRedirectsOptions, RedirecTypeEnum} from './types'
+import type {SanityNextRedirectsOptions, RedirectTypeEnum} from './types'
 import {PublishIcon} from '@sanity/icons'
 import {DefaultDialogBox} from './DefaultDialogBox'
 
@@ -42,7 +42,7 @@ export const PublishAndCreateRedirect =
     // this is just UI so the user knows what's going on
     const [destination, setDestination] = useState<SanityDocument>()
     // this is the destination for the new redirect
-    const [redirectType, setRedirectType] = useState<RedirecTypeEnum>('PERMANENT')
+    const [redirectType, setRedirectType] = useState<RedirectTypeEnum>('PERMANENT')
 
     const client = useMemo(
       () =>
@@ -66,7 +66,7 @@ export const PublishAndCreateRedirect =
       }
     }
 
-    const checkForSlugChange = (
+    const checkForSlugChange = async (
       draft?: SanityDocument | null,
       published?: SanityDocument | null
     ) => {
@@ -101,11 +101,27 @@ export const PublishAndCreateRedirect =
     }
 
     const createRedirectAndPublish = async (destination: SanityDocument, redirectPath: string) => {
-      if (!destination || !redirectPath) {
+      if (!destination || !redirectPath || !destinationPath) {
         debugMessage('ERROR (should be unreachable')
         return
       }
-      debugMessage('creating redirect')
+
+      debugMessage(`checking circulars: ${destinationPath}`)
+      const circularRedirects = await client.fetch(
+        `*[_type == 'redirect' && url == $url] { _id }`,
+        {
+          url: destinationPath,
+        }
+      )
+      if (circularRedirects) {
+        debugMessage(JSON.stringify(circularRedirects))
+        await Promise.all(
+          circularRedirects.map((r: {_id: string}) => {
+            client.delete(r._id)
+          })
+        )
+      }
+
       await client.create({
         _type: redirectSchemaName!,
         destination: {
@@ -115,6 +131,7 @@ export const PublishAndCreateRedirect =
         redirectType,
         url: redirectPath,
       })
+
       if (!!toastMessage) {
         toast.push({
           title: toastMessage,

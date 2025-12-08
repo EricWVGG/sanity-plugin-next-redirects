@@ -1,4 +1,4 @@
-import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading, Radio, Inline} from '@sanity/ui'
+import {Button, TextInput, Label, Card, Stack, Flex, Text, Heading, Radio} from '@sanity/ui'
 import {CloseIcon, PublishIcon} from '@sanity/icons'
 import type {DialogBoxProps} from './types'
 import pluralize from 'pluralize-esm'
@@ -17,7 +17,6 @@ export const DefaultDialogBox = ({
 }: DialogBoxProps): React.ReactElement => {
   const ONE_DAY = 86400000 // milliseconds
   // const ONE_HOUR = 3600000 // milliseconds
-
   return (
     <Card padding={4}>
       <Stack space={[4, 6, 4, 4]}>
@@ -123,4 +122,7 @@ const RadioLabel = styled.label`
   align-items: center;
   gap: 6px;
   text-box: trim-both cap alphabetic;
+  svg {
+    margin: 0 !important;
+  }
 `

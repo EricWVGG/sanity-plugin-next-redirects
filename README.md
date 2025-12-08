@@ -31,8 +31,8 @@ For each document type, you’ll need a function that resolves the document type
 For example, you might have…
 
 - “page” documents handled by `/app/[slug]`, for pages like `/about` or `/contact`
-- "event" documents handled by `/app/event/[yyyy]/[mm]/[dd]/[slug]`, for listings like `/event/2025/11/28/black-friday-sale-on-labubus`
-- "post" documents handled by `/app/post/[slug]`, for posts and articles like `/post/i-bought-my-daughter-a-labubu`
+- “event” documents handled by `/app/event/[yyyy]/[mm]/[dd]/[slug]`, for listings like `/event/2025/11/28/black-friday-sale-on-labubus`
+- “post” documents handled by `/app/post/[slug]`, for posts and articles like `/post/i-bought-my-daughter-a-labubu`
 
 ```typescript
 // pathResolvers.ts
