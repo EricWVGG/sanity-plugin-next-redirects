@@ -34,6 +34,7 @@
     "build": "plugin-kit verify-package --silent && pkg-utils build --strict --check --clean",
     "link-watch": "plugin-kit link-watch",
     "prepublishOnly": "npm run build",
+    "publish": "npm login && npm publish",
     "watch": "pkg-utils watch --strict"
   },
   "dependencies": {
