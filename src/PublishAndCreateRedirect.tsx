@@ -12,6 +12,11 @@ import type {SanityNextRedirectsOptions, RedirectTypeEnum} from './types'
 import {PublishIcon} from '@sanity/icons'
 import {DefaultDialogBox} from './DefaultDialogBox'
 
+/**
+ * A document action that detects whether a redirect should be generated.
+ * @public
+ */
+
 export const PublishAndCreateRedirect =
   (context: DocumentActionsContext, config: SanityNextRedirectsOptions) =>
   (props: DocumentActionProps): DocumentActionComponent | DocumentActionDescription => {

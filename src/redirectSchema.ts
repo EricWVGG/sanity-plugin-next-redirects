@@ -4,6 +4,11 @@ import {regex} from 'sanity-advanced-validators'
 import type {SanityNextRedirectsOptions} from './types'
 import {IconTemporary, IconPermanent} from './Icons'
 
+/**
+ * Represents a user profile.
+ * @public
+ */
+
 export const withRedirectSchema =
   ({documentTitleKey, pathResolvers, customRedirectSchema}: SanityNextRedirectsOptions) =>
   (
@@ -19,6 +24,11 @@ export const withRedirectSchema =
   }
 
 // todo: it would be nice if we could pick up `sampleRedirectSchema.ts` and insert the necessary values.
+
+/**
+ * the redirect schema
+ * @public
+ */
 
 export const createRedirectSchema = (types: Array<string>, documentTitleKey: string = 'title') =>
   defineType({

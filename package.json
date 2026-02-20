@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-next-redirects",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Facilitates a dynamic redirect table in NextJS with Sanity.",
   "repository": {
     "type": "git",
@@ -42,27 +42,27 @@
     "@sanity/incompatible-plugin": "^1.0.5",
     "@sanity/ui": "^3.1.11",
     "pluralize-esm": "^9.0.5",
-    "sanity-advanced-validators": "^0.6.0"
+    "sanity-advanced-validators": "^0.9.0"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "8.1.12",
+    "@sanity/pkg-utils": "10.4.4",
     "@sanity/plugin-kit": "^4.0.20",
-    "@types/react": "^19.2.3",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "sanity": "^4.14.2",
-    "styled-components": "^6.1.19",
+    "@types/react": "^19.2.14",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "sanity": "^5.11.0",
+    "styled-components": "^6.3.11",
     "typescript": "^5.9.3",
     "yalc": "1.0.0-pre.53"
   },
   "peerDependencies": {
-    "next-sanity": "^11.6.6",
+    "next-sanity": "^12.0.0",
     "pluralize-esm": "^9.0.5",
-    "react": "^18 || ^19",
-    "sanity": "^4.14.2"
+    "react": "^19",
+    "sanity": "^5.0.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0.0 < 23"
   },
   "sanityPlugin": {
     "linkWatch": {

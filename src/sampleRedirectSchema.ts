@@ -7,6 +7,11 @@ NOTE: the fields `url`, `destination`, and `redirectType` are *required*.
 `destination` must be populated with the document types that should support redirects.
 */
 
+/**
+ * a sample redirect schema
+ * @public
+ */
+
 export const sampleRedirectSchema = defineType({
   name: 'redirect',
   title: 'Redirects',

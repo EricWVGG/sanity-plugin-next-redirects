@@ -4,6 +4,11 @@ import type {DialogBoxProps} from './types'
 import pluralize from 'pluralize-esm'
 import styled from 'styled-components'
 
+/**
+ * Presents a UI when a redirect is needed.
+ * @public
+ */
+
 export const DefaultDialogBox = ({
   timeSinceCreated,
   redirectPath,

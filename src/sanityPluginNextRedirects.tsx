@@ -3,6 +3,11 @@ import {PublishAndCreateRedirect} from './PublishAndCreateRedirect'
 import {withRedirectSchema} from './redirectSchema'
 import type {SanityNextRedirectsOptions} from './types'
 
+/**
+ * plugin definition
+ * @public
+ */
+
 export const sanityPluginNextRedirects = definePlugin<SanityNextRedirectsOptions>((config) => {
   const componentConfigWithDefaults = ({
     pathResolvers,

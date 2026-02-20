@@ -1,3 +1,8 @@
+/**
+ * Temporary Redirect icon.
+ * @public
+ */
+
 export const IconTemporary = () => (
   <div style={{textTransform: 'uppercase', textAlign: 'center'}}>
     <div style={{fontSize: '14px', letterSpacing: '-1px', fontFamily: 'courier new, monospace'}}>
@@ -6,6 +11,11 @@ export const IconTemporary = () => (
     <div style={{fontSize: '7px'}}>TEMP</div>
   </div>
 )
+
+/**
+ * Permanent redirect icon.
+ * @public
+ */
 
 export const IconPermanent = () => (
   <div style={{textTransform: 'uppercase', textAlign: 'center'}}>

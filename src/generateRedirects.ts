@@ -4,6 +4,11 @@ import {redirectQuery as defaultRedirectQuery} from './redirectQuery'
 
 type Redirect = {source: string; destination: string; permanent: boolean}
 
+/**
+ * Generates redirects.
+ * @public
+ */
+
 export const generateRedirects = async (
   client: SanityClient,
   pathResolvers: PathResolvers,
