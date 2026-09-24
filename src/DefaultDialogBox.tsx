@@ -24,7 +24,7 @@ export const DefaultDialogBox = ({
   // const ONE_HOUR = 3600000 // milliseconds
   return (
     <Card padding={4}>
-      <Stack space={[4, 6, 4, 4]}>
+      <Stack gap={[4, 6, 4, 4]}>
         {!timeSinceCreated ? null : timeSinceCreated && timeSinceCreated < ONE_DAY ? (
           <>
             <Heading>This document is under a day old.</Heading>
@@ -33,7 +33,7 @@ export const DefaultDialogBox = ({
             </Text>
           </>
         ) : (
-          <Stack space={4}>
+          <Stack gap={4}>
             <Heading>
               This document is {Math.ceil(timeSinceCreated / ONE_DAY)}{' '}
               {pluralize('day', Math.ceil(timeSinceCreated / ONE_DAY))} old.

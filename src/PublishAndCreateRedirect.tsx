@@ -7,7 +7,7 @@ import {
   type SanityDocument,
   type DocumentActionComponent,
 } from 'sanity'
-import {useToast} from '@sanity/ui'
+import {useToast} from '@sanity/ui/toast'
 import type {SanityNextRedirectsOptions, RedirectTypeEnum} from './types'
 import {PublishIcon} from '@sanity/icons'
 import {DefaultDialogBox} from './DefaultDialogBox'
@@ -54,7 +54,7 @@ export const PublishAndCreateRedirect =
         context.getClient({
           apiVersion: apiVersion!,
         }),
-      [context]
+      [context],
     )
 
     useEffect(() => {
@@ -73,7 +73,7 @@ export const PublishAndCreateRedirect =
 
     const checkForSlugChange = async (
       draft?: SanityDocument | null,
-      published?: SanityDocument | null
+      published?: SanityDocument | null,
     ) => {
       if (!draft) {
         debugMessage('Error: Publishing without a draft. This should be unreachable.')
@@ -116,14 +116,14 @@ export const PublishAndCreateRedirect =
         `*[_type == 'redirect' && url == $url] { _id }`,
         {
           url: destinationPath,
-        }
+        },
       )
       if (circularRedirects) {
         debugMessage(JSON.stringify(circularRedirects))
         await Promise.all(
           circularRedirects.map((r: {_id: string}) => {
             client.delete(r._id)
-          })
+          }),
         )
       }
 
